@@ -13,8 +13,6 @@ kind: Application
 metadata:
   name: bootstrap-apps
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   

@@ -6,6 +6,7 @@
 .terraform/
 .terraform.lock.hcl
 crash.log
+terraform-debug.log
 override.tf
 override.tf.json
 *_override.tf

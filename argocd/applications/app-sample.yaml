@@ -1,0 +1,48 @@
+# Example: Application Using External Helm Chart
+# This shows deploying an application using a Helm chart from an external repository
+# Useful for deploying third-party applications or standard charts
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sample-nginx-app
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"  # Deploy in application phase
+spec:
+  project: applications
+  
+  # Source: External Helm chart from Bitnami repository
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: nginx
+    targetRevision: 15.9.0
+    helm:
+      values: |
+        replicaCount: 2
+        service:
+          type: ClusterIP
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+    
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sample-app
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
