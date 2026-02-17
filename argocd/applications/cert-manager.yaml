@@ -1,0 +1,84 @@
+# Example: Management Infrastructure Applications
+# This file shows how to deploy infrastructure tools like cert-manager
+# from external Helm repositories and configure them with custom resources
+# from this Git repository.
+
+---
+# cert-manager: SSL/TLS certificate management
+# Installs from the official Jetstack Helm repository
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"  # Deploy first
+spec:
+  project: management
+  
+  # Source: External Helm chart repository
+  source:
+    repoURL: https://charts.jetstack.io
+    chart: cert-manager
+    targetRevision: v1.14.4
+    helm:
+      values: |
+        installCRDs: true
+        # Uncomment to add node selectors:
+        # nodeSelector:
+        #   workload-type: management
+        global:
+          leaderElection:
+            namespace: cert-manager
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+---
+# ClusterIssuer: LetsEncrypt certificate issuer configuration
+# Uses manifests stored in this Git repository
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-issuer-letsencrypt
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"  # Deploy after cert-manager
+spec:
+  project: management
+  
+  # Source: Path within this Git repository
+  source:
+    repoURL: https://github.com/Arubacloud/devops-italy-2026.git
+    targetRevision: HEAD
+    path: manifests/cert-manager/cluster-issuer
+    # This path should contain your ClusterIssuer YAML files
+    
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

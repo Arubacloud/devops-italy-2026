@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Platform project for shared services (ingress, monitoring, logging)
+  
+  # Allow deployments to all namespaces
+  destinations:
+    - namespace: '*'
+      server: '*'
+  
+  # Allow all sources
+  sourceRepos:
+    - '*'
+  
+  # Allow all resource kinds
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

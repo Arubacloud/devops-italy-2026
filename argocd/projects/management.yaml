@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: management
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Management project for infrastructure and platform tools
+  
+  # Allow deployments to all namespaces
+  destinations:
+    - namespace: '*'
+      server: '*'
+  
+  # Allow all sources (Helm repos, Git repos, etc.)
+  sourceRepos:
+    - '*'
+  
+  # Allow all resource kinds
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  
+  # Namespace-scoped resources
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
