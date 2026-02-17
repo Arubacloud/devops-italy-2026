@@ -12,5 +12,6 @@ override.tf.json
 *_override.tf.json
 
 # Sensitive files
+kubeconfig
 *.pem
 *.key
