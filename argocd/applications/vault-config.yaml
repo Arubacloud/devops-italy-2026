@@ -18,7 +18,7 @@ spec:
   source:
     repoURL: https://github.com/Arubacloud/devops-italy-2026.git
     targetRevision: main
-    path: argocd/applications/vault-resources
+    path: argocd/vault-resources
   
   destination:
     server: https://kubernetes.default.svc
