@@ -46,34 +46,20 @@ spec:
 ---
 # ClusterIssuer: LetsEncrypt certificate issuer configuration
 # Uses manifests stored in this Git repository
-apiVersion: argoproj.io/v1alpha1
-kind: Application
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
 metadata:
-  name: cluster-issuer-letsencrypt
-  namespace: argocd
+  name: letsencrypt-prod
+  namespace: cert-manager
   annotations:
-    argocd.argoproj.io/sync-wave: "1"  # Deploy after cert-manager
+    argocd.argoproj.io/sync-wave: "10"  # Deploy after cert-manager
 spec:
-  project: management
-  
-  # Source: Path within this Git repository
-  source:
-    repoURL: https://github.com/Arubacloud/devops-italy-2026.git
-    targetRevision: HEAD
-    path: manifests/cert-manager/cluster-issuer
-    # This path should contain your ClusterIssuer YAML files
-    
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: cert-manager
-    
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    retry:
-      limit: 5
-      backoff:
-        duration: 5s
-        factor: 2
-        maxDuration: 3m
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: amedeo.palopoli@staff.aruba.it
+    privateKeySecretRef:
+      name: letsencrypt-prd
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
