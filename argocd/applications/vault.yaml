@@ -5,7 +5,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nginx-ingress
+  name: vault
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "10"  # Deploy in platform phase
@@ -76,7 +76,7 @@ spec:
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: ingress-nginx
+    namespace: vault
     
   syncPolicy:
     automated:
