@@ -8,7 +8,7 @@ metadata:
   name: vault
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "10"  # Deploy in platform phase
+    argocd.argoproj.io/sync-wave: "1"  # Deploy in platform phase
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -50,27 +50,8 @@ spec:
             type: ClusterIP
             port: 8200
 
-          # If Vault will be reached via the public hostname,
-          # set the API address so redirects & CLI are correct.
-          extraEnvironmentVars:
-            VAULT_API_ADDR: "https://vault.devops-italy-2026-arubacloud.com"
-
-
           ingress:
-            enabled: true
-            ingressClassName: nginx
-            pathType: Prefix                 # 👈 let the chart set the pathType
-            annotations:
-              cert-manager.io/cluster-issuer: "letsencrypt-prod"
-            hosts:
-              - host: vault.devops-italy-2026-arubacloud.com
-                paths:
-                  - "/"                      # 👈 list of STRING paths (not objects)
-            tls:
-              - hosts:
-                  - vault.devops-italy-2026-arubacloud.com
-                secretName: vault-devsops-italy-2026-arubacloud-com-tls
-
+            enabled: false
         ui:
           enabled: true
 

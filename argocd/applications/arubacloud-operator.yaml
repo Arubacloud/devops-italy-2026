@@ -5,10 +5,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nginx-ingress
+  name: vault
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "10"  # Deploy in platform phase
+    argocd.argoproj.io/sync-wave: "10"  # Deploy after vault
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -16,21 +16,24 @@ spec:
   
   # Source: External Helm chart from official ingress-nginx repository
   source:
-    repoURL: https://kubernetes.github.io/ingress-nginx
-    chart: ingress-nginx
-    targetRevision: 4.11.3
+    repoURL: https://arubacloud.github.io/helm-charts
+    chart: arubacloud-operator
+    targetRevision: 0.32.0
     helm:
       values: |
-        controller:
-          admissionWebhooks:
-            enabled: false
-          kind: DaemonSet
-          service:
-            type: LoadBalancer
-
+        config:
+          auth:
+            mode: multi
+            multi:
+              vault:
+                address: http://vault.vault.svc:8200
+                kvMount: kv
+                roleId: role-id-placeholder
+                rolePath: approle
+                roleSecret: secret-id-placeholder
   destination:
     server: https://kubernetes.default.svc
-    namespace: ingress-nginx
+    namespace: aruba-system
     
   syncPolicy:
     automated:
