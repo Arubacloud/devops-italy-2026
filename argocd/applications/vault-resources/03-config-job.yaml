@@ -1,0 +1,123 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-config
+  namespace: vault
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 10
+  template:
+    metadata:
+      labels:
+        app: vault-config
+    spec:
+      serviceAccountName: vault-config
+      restartPolicy: OnFailure
+      initContainers:
+      - name: wait-for-vault
+        image: hashicorp/vault:latest
+        command:
+        - sh
+        - -c
+        - |
+          set -e
+          echo "Waiting for Vault to be ready..."
+          until vault status -address=http://vault.vault.svc:8200 2>/dev/null; do
+            echo "Vault not ready yet, retrying in 5 seconds..."
+            sleep 5
+          done
+          echo "Vault is ready!"
+        env:
+        - name: VAULT_ADDR
+          value: "http://vault.vault.svc:8200"
+        - name: VAULT_SKIP_VERIFY
+          value: "true"
+      containers:
+      - name: configure-vault
+        image: hashicorp/vault:latest
+        command:
+        - sh
+        - -c
+        - |
+          set -e
+          
+          export VAULT_ADDR="http://vault.vault.svc:8200"
+          export VAULT_SKIP_VERIFY="true"
+          
+          # Note: You need to set VAULT_TOKEN as a root or privileged token
+          # This should be passed as a secret. For initial setup, you can use the root token
+          # obtained during vault initialization
+          
+          if [ -z "$VAULT_TOKEN" ]; then
+            echo "ERROR: VAULT_TOKEN environment variable must be set"
+            echo "Please create a secret with the vault root token or a privileged token"
+            exit 1
+          fi
+          
+          echo "Configuring Vault..."
+          
+          # Enable AppRole auth method (skip if already enabled)
+          echo "Enabling AppRole auth method..."
+          vault auth enable approle 2>/dev/null || echo "AppRole already enabled"
+          
+          # Write the operator policy
+          echo "Creating operator policy..."
+          vault policy write operator-policy /vault/config/operator-policy.hcl
+          
+          # Create AppRole with the policy
+          echo "Creating AppRole..."
+          vault write auth/approle/role/operator-role \
+            token_policies="operator-policy" \
+            secret_id_ttl=0 \
+            secret_id_num_uses=0 \
+            token_ttl=1h \
+            token_max_ttl=4h
+          
+          # Get Role ID
+          echo "Getting Role ID..."
+          ROLE_ID=$(vault read -field=role_id auth/approle/role/operator-role/role-id)
+          echo "Role ID: $ROLE_ID"
+          
+          # Generate Secret ID
+          echo "Generating Secret ID..."
+          SECRET_ID=$(vault write -field=secret_id -f auth/approle/role/operator-role/secret-id)
+          echo "Secret ID: $SECRET_ID"
+          
+          # Enable KV v2 secrets engine (skip if already enabled)
+          echo "Enabling KV v2 secrets engine..."
+          vault secrets enable -path=kv kv-v2 2>/dev/null || echo "KV secrets engine already enabled at path 'kv'"
+          
+          # Store the credentials in a Kubernetes secret
+          echo "Creating Kubernetes secret with AppRole credentials..."
+          kubectl create secret generic vault-approle-credentials \
+            --from-literal=role-id="$ROLE_ID" \
+            --from-literal=secret-id="$SECRET_ID" \
+            --namespace=aruba-system \
+            --dry-run=client -o yaml | kubectl apply -f -
+          
+          echo "Vault configuration completed successfully!"
+          echo "Role ID and Secret ID have been stored in secret 'vault-approle-credentials' in namespace 'aruba-system'"
+          echo ""
+          echo "You can now update your arubacloud-operator configuration to use these values."
+        env:
+        - name: VAULT_ADDR
+          value: "http://vault.vault.svc:8200"
+        - name: VAULT_SKIP_VERIFY
+          value: "true"
+        - name: VAULT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: vault-init-token
+              key: token
+              optional: false
+        volumeMounts:
+        - name: policy
+          mountPath: /vault/config
+          readOnly: true
+      volumes:
+      - name: policy
+        configMap:
+          name: vault-operator-policy

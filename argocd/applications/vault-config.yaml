@@ -1,0 +1,38 @@
+# Vault Post-Installation Configuration
+# This deploys a Job that configures Vault with AppRole auth and KV secrets engine
+# It runs after Vault is installed and creates the necessary roles and policies
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault-config
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"  # Deploy after vault (wave 1)
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  
+  # Source: Local manifests in Git repository
+  source:
+    repoURL: https://github.com/Arubacloud/devops-italy-2026.git
+    targetRevision: main
+    path: argocd/applications/vault-resources
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vault
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false  # Disable selfHeal for Jobs to avoid re-running them
+    syncOptions:
+      - CreateNamespace=false  # vault namespace already exists
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-operator-policy
+  namespace: vault
+data:
+  operator-policy.hcl: |
+    path "kv/data/*" {
+      capabilities = ["read"]
+    }
