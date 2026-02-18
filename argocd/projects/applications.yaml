@@ -3,8 +3,6 @@ kind: AppProject
 metadata:
   name: applications
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   description: Applications project for workloads and business applications
   

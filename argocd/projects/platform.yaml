@@ -3,8 +3,6 @@ kind: AppProject
 metadata:
   name: platform
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   description: Platform project for shared services (ingress, monitoring, logging)
   

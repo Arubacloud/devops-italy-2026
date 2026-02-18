@@ -9,8 +9,6 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "1"  # Deploy in platform phase
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: platform
   

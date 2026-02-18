@@ -10,8 +10,6 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "10"  # Deploy after vault (wave 1) and vault-config (wave 5)
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: platform
   
