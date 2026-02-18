@@ -37,12 +37,12 @@ spec:
                 }
           dataStorage:
             enabled: true
-            storageClass: cinder  
+            storageClass: acloud  
             accessMode: ReadWriteOnce
             size: 5Gi
           auditStorage:
             enabled: false        
-            storageClass: cinder
+            storageClass: acloud
             # accessMode: ReadWriteOnce
             # size: 10Gi
           service:
