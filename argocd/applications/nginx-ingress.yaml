@@ -18,20 +18,16 @@ spec:
   source:
     repoURL: https://kubernetes.github.io/ingress-nginx
     chart: ingress-nginx
-    targetRevision: 4.8.3
+    targetRevision: 4.11.3
     helm:
       values: |
         controller:
+          admissionWebhooks:
+            enabled: false
+          kind: DaemonSet
           service:
             type: LoadBalancer
-          metrics:
-            enabled: true
-            serviceMonitor:
-              enabled: false
-          # Uncomment to configure node selection:
-          # nodeSelector:
-          #   workload-type: platform
-    
+
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
@@ -48,3 +44,5 @@ spec:
         duration: 5s
         factor: 2
         maxDuration: 3m
+
+

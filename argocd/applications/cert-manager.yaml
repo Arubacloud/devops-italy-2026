@@ -1,8 +1,3 @@
-# Example: Management Infrastructure Applications
-# This file shows how to deploy infrastructure tools like cert-manager
-# from external Helm repositories and configure them with custom resources
-# from this Git repository.
-
 ---
 # cert-manager: SSL/TLS certificate management
 # Installs from the official Jetstack Helm repository
@@ -14,7 +9,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"  # Deploy first
 spec:
-  project: management
+  project: platform
   
   # Source: External Helm chart repository
   source:

@@ -1,0 +1,94 @@
+# Example: Platform Ingress Controller
+# This shows deploying NGINX Ingress Controller from the official Helm repository
+# This is a platform-level service that multiple applications will use
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-ingress
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"  # Deploy in platform phase
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  
+  # Source: External Helm chart from official ingress-nginx repository
+  source:
+    repoURL: https://helm.releases.hashicorp.com
+    chart: vault
+    targetRevision: 0.32.0
+    helm:
+      values: |
+        server:
+          ha:
+            enabled: true
+            replicas: 3
+            raft:
+              enabled: true
+              config: |
+                listener "tcp" { address = "0.0.0.0:8200" tls_disable = 1 }
+                storage "raft" { path = "/vault/data" }
+                service_registration "kubernetes" {}
+                # Auto-join peers (adjust service/labels/ns if yours differ)
+                retry_join {
+                  leader_api_addr = "http://vault-0.vault-internal:8200"
+                }
+          dataStorage:
+            enabled: true
+            storageClass: cinder  
+            accessMode: ReadWriteOnce
+            size: 5Gi
+          auditStorage:
+            enabled: false        
+            storageClass: cinder
+            # accessMode: ReadWriteOnce
+            # size: 10Gi
+          service:
+            enabled: true
+            type: ClusterIP
+            port: 8200
+
+          # If Vault will be reached via the public hostname,
+          # set the API address so redirects & CLI are correct.
+          extraEnvironmentVars:
+            VAULT_API_ADDR: "https://vault.devops-italy-2026-arubacloud.com"
+
+
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            pathType: Prefix                 # 👈 let the chart set the pathType
+            annotations:
+              cert-manager.io/cluster-issuer: "letsencrypt-prod"
+            hosts:
+              - host: vault.devops-italy-2026-arubacloud.com
+                paths:
+                  - "/"                      # 👈 list of STRING paths (not objects)
+            tls:
+              - hosts:
+                  - vault.devops-italy-2026-arubacloud.com
+                secretName: vault-devsops-italy-2026-arubacloud-com-tls
+
+        ui:
+          enabled: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ingress-nginx
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+
