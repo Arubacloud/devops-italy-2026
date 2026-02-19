@@ -30,3 +30,28 @@ subjects:
 - kind: ServiceAccount
   name: vault-config
   namespace: vault
+---
+# Additional Role in aruba-system namespace to allow creating secrets
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vault-config-aruba
+  namespace: aruba-system
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create", "update", "patch", "get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vault-config-aruba
+  namespace: aruba-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: vault-config-aruba
+subjects:
+- kind: ServiceAccount
+  name: vault-config
+  namespace: vault
