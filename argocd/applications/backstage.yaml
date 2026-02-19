@@ -44,6 +44,13 @@ spec:
                 client: better-sqlite3
                 connection: ':memory:'
             
+            # GitHub integration for catalog
+            integrations:
+              github:
+                - host: github.com
+                  # For public repos, no token needed
+                  # For private repos, add: token: ${GITHUB_TOKEN}
+            
             # Enable Kubernetes plugin
             kubernetes:
               serviceLocatorMethod:
