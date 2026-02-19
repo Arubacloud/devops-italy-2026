@@ -1,0 +1,56 @@
+# ArubaCloud Operator
+# This deploys the ArubaCloud Operator which manages ArubaCloud resources
+# It authenticates to Vault using AppRole to retrieve tenant credentials
+# Prerequisites: Vault must be configured with AppRole (see vault-config application)
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arubacloud-operator
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"  # Deploy after vault (wave 1) and vault-config (wave 5)
+spec:
+  project: platform
+  
+  source:
+    repoURL: https://arubacloud.github.io/helm-charts
+    chart: arubacloud-operator
+    targetRevision: 0.32.0
+    helm:
+      values: |
+        config:
+          auth:
+            mode: multi
+            multi:
+              vault:
+                address: http://vault.vault.svc:8200
+                kvMount: kv
+                rolePath: approle                
+                roleIdFrom:
+                  secretKeyRef:
+                    name: vault-approle-credentials
+                    key: role-id
+                roleSecretFrom:
+                  secretKeyRef:
+                    name: vault-approle-credentials
+                    key: secret-id
+                
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: aruba-system
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+
