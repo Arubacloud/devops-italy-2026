@@ -3,6 +3,13 @@
 # - Read and manage CustomResourceDefinitions
 # - Read and create ArubaCloud custom resources
 # - Read pods, services, deployments for Kubernetes plugin
+# Note: Apply this before deploying Backstage application
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: backstage
 
 ---
 apiVersion: v1

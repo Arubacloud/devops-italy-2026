@@ -12,4 +12,3 @@ spec:
   targets:
     - ./project-template.yaml
     - ./blockstorage-template.yaml
-    - ./arubacloud-resource-template.yaml
