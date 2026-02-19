@@ -16,7 +16,7 @@ spec:
   source:
     repoURL: https://arubacloud.github.io/helm-charts
     chart: arubacloud-operator
-    targetRevision: 0.32.0
+    targetRevision: 0.1.0
     helm:
       values: |
         config:
