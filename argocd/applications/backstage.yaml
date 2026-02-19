@@ -25,11 +25,6 @@ spec:
             repository: backstage/backstage
             tag: latest
           
-          # Enable service account for Kubernetes API access
-          serviceAccount:
-            create: true
-            name: backstage
-          
           # Application configuration
           appConfig:
             app:
@@ -75,6 +70,11 @@ spec:
                 # Local templates - update this URL to your Git repository
                 # For now, you'll need to manually import via Backstage UI:
                 # Create > Register Existing Component > paste the raw GitHub URL to catalog-info.yaml
+        
+        # Service Account for Kubernetes API access
+        serviceAccount:
+          create: false
+          name: backstage
         
         # Service configuration
         service:
