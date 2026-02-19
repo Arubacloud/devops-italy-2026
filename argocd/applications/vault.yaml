@@ -1,18 +1,13 @@
-# Example: Platform Ingress Controller
-# This shows deploying NGINX Ingress Controller from the official Helm repository
-# This is a platform-level service that multiple applications will use
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: vault
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "1"  # Deploy in platform phase
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: platform
-  
-  # Source: External Helm chart from official ingress-nginx repository
+
   source:
     repoURL: https://helm.releases.hashicorp.com
     chart: vault
@@ -22,15 +17,10 @@ spec:
         server:
           enabled: true
 
-          # Standalone (no HA, no raft)
-          ha:
-            enabled: false
-
-          # Explicitly disable persistence
-          dataStorage:
-            enabled: false
-          auditStorage:
-            enabled: false
+          # 🚀 GitOps-friendly Vault (auto-init + auto-unseal)
+          dev:
+            enabled: true
+            devRootToken: "root"
 
           service:
             enabled: true
@@ -40,21 +30,13 @@ spec:
           ingress:
             enabled: false
 
-          # Dev-style listener (no TLS)
-          extraConfig: |
-            listener "tcp" {
-              address = "0.0.0.0:8200"
-              tls_disable = 1
-            }
-            ui = true
-
         ui:
           enabled: true
 
   destination:
     server: https://kubernetes.default.svc
     namespace: vault
-    
+
   syncPolicy:
     automated:
       prune: true
@@ -67,5 +49,3 @@ spec:
         duration: 5s
         factor: 2
         maxDuration: 3m
-
-
