@@ -69,8 +69,12 @@ spec:
               rules:
                 - allow: [Component, System, API, Resource, Location, Template]
               locations:
+                # Example entities from Backstage
                 - type: url
                   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
+                # Local templates - update this URL to your Git repository
+                # For now, you'll need to manually import via Backstage UI:
+                # Create > Register Existing Component > paste the raw GitHub URL to catalog-info.yaml
         
         # Service configuration
         service:

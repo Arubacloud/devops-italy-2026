@@ -1,0 +1,211 @@
+# ArubaCloud BlockStorage Template
+# Creates a BlockStorage custom resource in Kubernetes
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: arubacloud-blockstorage
+  title: ArubaCloud Block Storage
+  description: Create a new ArubaCloud BlockStorage volume
+  tags:
+    - arubacloud
+    - storage
+    - volume
+    - kubernetes
+spec:
+  owner: platform-team
+  type: resource
+  
+  parameters:
+    - title: Storage Information
+      required:
+        - name
+        - namespace
+        - tenant
+        - sizeGb
+      properties:
+        name:
+          title: Volume Name
+          type: string
+          description: Name of the block storage volume
+          ui:autofocus: true
+          pattern: '^[a-z0-9]([-a-z0-9]*[a-z0-9])?$'
+          ui:help: 'Lowercase alphanumeric characters or hyphens'
+        
+        namespace:
+          title: Namespace
+          type: string
+          description: Kubernetes namespace for the volume
+          default: default
+          pattern: '^[a-z0-9]([-a-z0-9]*[a-z0-9])?$'
+        
+        tenant:
+          title: Tenant
+          type: string
+          description: ArubaCloud tenant identifier
+          ui:help: 'The tenant that will own this storage'
+        
+        sizeGb:
+          title: Size (GB)
+          type: integer
+          description: Size of the volume in gigabytes
+          default: 40
+          minimum: 1
+          maximum: 2048
+          ui:help: 'Volume size between 1 and 2048 GB'
+        
+        tags:
+          title: Tags
+          type: array
+          description: Tags for the storage volume
+          default: []
+          items:
+            type: string
+          ui:options:
+            orderable: true
+    
+    - title: Location and Configuration
+      required:
+        - location
+        - dataCenter
+      properties:
+        location:
+          title: Location
+          type: string
+          description: ArubaCloud location
+          default: ITBG-Bergamo
+          enum:
+            - ITBG-Bergamo
+            - ITAR-Arezzo
+            - ITMI-Milan
+            - DEDE-Frankfurt
+            - FRPA-Paris
+            - UKLO-London
+          enumNames:
+            - 'Italy - Bergamo'
+            - 'Italy - Arezzo'
+            - 'Italy - Milan'
+            - 'Germany - Frankfurt'
+            - 'France - Paris'
+            - 'UK - London'
+        
+        dataCenter:
+          title: Data Center
+          type: string
+          description: Specific data center identifier
+          default: ITBG-1
+          enum:
+            - ITBG-1
+            - ITAR-1
+            - ITMI-1
+            - DEDE-1
+            - FRPA-1
+            - UKLO-1
+        
+        billingPeriod:
+          title: Billing Period
+          type: string
+          description: Billing frequency
+          default: Hour
+          enum:
+            - Hour
+            - Month
+            - Year
+        
+        bootable:
+          title: Bootable Volume
+          type: boolean
+          description: Make this volume bootable with an OS image
+          default: false
+        
+        image:
+          title: OS Image
+          type: string
+          description: Operating system image (required if bootable)
+          default: ''
+          ui:help: 'e.g., LU20-001 for Ubuntu 20.04'
+          ui:field: ConditionalField
+          ui:options:
+            condition:
+              field: bootable
+              value: true
+    
+    - title: Project Reference
+      properties:
+        useProjectReference:
+          title: Link to Existing Project
+          type: boolean
+          description: Associate this storage with an existing ArubaCloud Project
+          default: false
+        
+        projectName:
+          title: Project Name
+          type: string
+          description: Name of the project to reference
+          ui:field: ConditionalField
+          ui:options:
+            condition:
+              field: useProjectReference
+              value: true
+        
+        projectNamespace:
+          title: Project Namespace
+          type: string
+          description: Namespace of the project
+          ui:field: ConditionalField
+          ui:options:
+            condition:
+              field: useProjectReference
+              value: true
+
+  steps:
+    - id: log-manifest
+      name: Log Configuration
+      action: debug:log
+      input:
+        message: |
+          Creating ArubaCloud BlockStorage:
+          Name: ${{ parameters.name }}
+          Namespace: ${{ parameters.namespace }}
+          Size: ${{ parameters.sizeGb }} GB
+          Location: ${{ parameters.location }}
+          Bootable: ${{ parameters.bootable }}
+    
+    - id: apply-manifest
+      name: Apply to Kubernetes
+      action: kubernetes:apply
+      input:
+        manifest: |
+          apiVersion: arubacloud.com/v1alpha1
+          kind: BlockStorage
+          metadata:
+            name: ${{ parameters.name }}
+            namespace: ${{ parameters.namespace }}
+          spec:
+            tenant: ${{ parameters.tenant }}
+            tags: ${{ parameters.tags | dump }}
+            location:
+              value: ${{ parameters.location }}
+            sizeGb: ${{ parameters.sizeGb }}
+            billingPeriod: ${{ parameters.billingPeriod }}
+            dataCenter: ${{ parameters.dataCenter }}
+            bootable: ${{ parameters.bootable }}
+            {% if parameters.bootable and parameters.image %}image: ${{ parameters.image }}{% endif %}
+            {% if parameters.useProjectReference and parameters.projectName %}
+            projectReference:
+              name: ${{ parameters.projectName }}
+              namespace: ${{ parameters.projectNamespace }}
+            {% endif %}
+
+  output:
+    links:
+      - title: View in Kubernetes
+        url: https://kubernetes.default.svc/apis/arubacloud.com/v1alpha1/namespaces/${{ parameters.namespace }}/blockstorages/${{ parameters.name }}
+    text:
+      - title: BlockStorage Created
+        content: |
+          Successfully created ArubaCloud BlockStorage: ${{ parameters.name }}
+          Namespace: ${{ parameters.namespace }}
+          Size: ${{ parameters.sizeGb }} GB
+          Location: ${{ parameters.location }}
+          Tenant: ${{ parameters.tenant }}
