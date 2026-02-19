@@ -17,7 +17,9 @@ spec:
         server:
           enabled: true
 
-          # 🚀 GitOps-friendly Vault (auto-init + auto-unseal)
+          standalone:
+            enabled: true
+
           dev:
             enabled: true
             devRootToken: "root"
@@ -43,9 +45,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-    retry:
-      limit: 5
-      backoff:
-        duration: 5s
-        factor: 2
-        maxDuration: 3m
