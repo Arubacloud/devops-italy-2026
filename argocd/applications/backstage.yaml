@@ -20,10 +20,21 @@ spec:
     helm:
       values: |
         backstage:
+          # Using official Backstage image
+          # Note: For production, build a custom image with your configuration
           image:
             registry: ghcr.io
             repository: backstage/backstage
             tag: latest
+          
+          # Extra environment variables for runtime configuration
+          extraEnvVars:
+            - name: APP_CONFIG_app_baseUrl
+              value: "http://localhost:7007"
+            - name: APP_CONFIG_backend_baseUrl  
+              value: "http://localhost:7007"
+            - name: LOG_LEVEL
+              value: "debug"
           
           # Application configuration
           appConfig:
@@ -35,6 +46,10 @@ spec:
               baseUrl: http://localhost:7007
               listen:
                 port: 7007
+                host: 0.0.0.0
+              cors:
+                origin: http://localhost:7007
+                credentials: true
               
               # Kubernetes plugin configuration
               csp:
