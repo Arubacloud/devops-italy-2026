@@ -1,0 +1,92 @@
+# Example Backstage Software Template for ArubaCloud Resources
+# This template can be imported into the Backstage catalog to enable
+# creating ArubaCloud custom resources through the Backstage UI
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: arubacloud-resource-template
+  title: ArubaCloud Resource
+  description: Create a new ArubaCloud custom resource in Kubernetes
+  tags:
+    - arubacloud
+    - kubernetes
+    - infrastructure
+spec:
+  owner: platform-team
+  type: resource
+  
+  parameters:
+    - title: Resource Information
+      required:
+        - name
+        - resourceType
+      properties:
+        name:
+          title: Resource Name
+          type: string
+          description: Name of the ArubaCloud resource
+          ui:autofocus: true
+          ui:options:
+            rows: 1
+        
+        resourceType:
+          title: Resource Type
+          type: string
+          description: Type of ArubaCloud resource to create
+          enum:
+            - VirtualMachine
+            - LoadBalancer
+            - Volume
+            - Network
+          enumNames:
+            - Virtual Machine
+            - Load Balancer
+            - Persistent Volume
+            - Virtual Network
+        
+        namespace:
+          title: Namespace
+          type: string
+          description: Kubernetes namespace for the resource
+          default: default
+        
+        region:
+          title: Region
+          type: string
+          description: ArubaCloud region
+          enum:
+            - it1
+            - it2
+            - de1
+            - fr1
+            - uk1
+          enumNames:
+            - Italy 1
+            - Italy 2
+            - Germany 1
+            - France 1
+            - United Kingdom 1
+          default: it1
+    
+    - title: Resource Specifications
+      properties:
+        description:
+          title: Description
+          type: string
+          description: Description of the resource
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+
+  steps:
+    - id: log
+      name: Log Parameters
+      action: debug:log
+      input:
+        message: Creating ArubaCloud resource ${{ parameters.name }}
+
+  output:
+    links:
+      - title: Resource Details
+        url: https://console.arubacloud.com

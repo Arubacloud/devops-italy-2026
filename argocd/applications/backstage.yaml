@@ -1,0 +1,104 @@
+# Backstage Developer Portal
+# This deploys Backstage to provide a developer portal for managing
+# Kubernetes resources including ArubaCloud custom resources via the catalog
+# Prerequisites: Kubernetes cluster with CRDs installed
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backstage
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "15"  # Deploy after operators (wave 10)
+spec:
+  project: platform
+  
+  source:
+    repoURL: https://backstage.github.io/charts
+    chart: backstage
+    targetRevision: 1.8.2
+    helm:
+      values: |
+        backstage:
+          image:
+            registry: ghcr.io
+            repository: backstage/backstage
+            tag: latest
+          
+          # Enable service account for Kubernetes API access
+          serviceAccount:
+            create: true
+            name: backstage
+          
+          # Application configuration
+          appConfig:
+            app:
+              title: DevOps Italy 2026 Portal
+              baseUrl: http://localhost:7007
+            
+            backend:
+              baseUrl: http://localhost:7007
+              listen:
+                port: 7007
+              
+              # Kubernetes plugin configuration
+              csp:
+                connect-src: ["'self'", 'http:', 'https:']
+              
+              database:
+                client: better-sqlite3
+                connection: ':memory:'
+            
+            # Enable Kubernetes plugin
+            kubernetes:
+              serviceLocatorMethod:
+                type: multiTenant
+              clusterLocatorMethods:
+                - type: config
+                  clusters:
+                    - url: https://kubernetes.default.svc
+                      name: local-cluster
+                      authProvider: serviceAccount
+                      skipTLSVerify: false
+                      skipMetricsLookup: false
+            
+            # Catalog configuration
+            catalog:
+              import:
+                entityFilename: catalog-info.yaml
+              rules:
+                - allow: [Component, System, API, Resource, Location, Template]
+              locations:
+                - type: url
+                  target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
+        
+        # Service configuration
+        service:
+          type: ClusterIP
+          ports:
+            backend: 7007
+        
+        # Ingress configuration (disabled by default)
+        ingress:
+          enabled: false
+        
+        # PostgreSQL (using in-memory SQLite for simplicity, use PostgreSQL for production)
+        postgresql:
+          enabled: false
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backstage
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
