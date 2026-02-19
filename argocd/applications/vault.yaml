@@ -20,29 +20,18 @@ spec:
     helm:
       values: |
         server:
+          enabled: true
+
+          # Standalone (no HA, no raft)
           ha:
-            enabled: true
-            replicas: 3
-            raft:
-              enabled: true
-              config: |
-                listener "tcp" { address = "0.0.0.0:8200" tls_disable = 1 }
-                storage "raft" { path = "/vault/data" }
-                service_registration "kubernetes" {}
-                # Auto-join peers (adjust service/labels/ns if yours differ)
-                retry_join {
-                  leader_api_addr = "http://vault-0.vault-internal:8200"
-                }
+            enabled: false
+
+          # Explicitly disable persistence
           dataStorage:
-            enabled: true
-            storageClass: acloud  
-            accessMode: ReadWriteOnce
-            size: 5Gi
+            enabled: false
           auditStorage:
-            enabled: false        
-            storageClass: acloud
-            # accessMode: ReadWriteOnce
-            # size: 10Gi
+            enabled: false
+
           service:
             enabled: true
             type: ClusterIP
@@ -50,6 +39,15 @@ spec:
 
           ingress:
             enabled: false
+
+          # Dev-style listener (no TLS)
+          extraConfig: |
+            listener "tcp" {
+              address = "0.0.0.0:8200"
+              tls_disable = 1
+            }
+            ui = true
+
         ui:
           enabled: true
 

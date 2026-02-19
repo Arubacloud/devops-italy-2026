@@ -76,7 +76,7 @@ variable "kaas_node_pool_name" {
 variable "kaas_node_pool_nodes" {
   description = "Number of nodes in node pool"
   type        = number
-  default     = 2
+  default     = 3
 }
 
 variable "kaas_node_pool_instance" {
