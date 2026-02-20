@@ -1,0 +1,75 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: create-dbaas
+  title: Create DBaaS Instance
+  description: Provision a DBaaS custom resource
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: General
+      required:
+        - name
+        - namespace
+        - projectId
+        - location
+      properties:
+        name:
+          title: Resource Name
+          type: string
+        namespace:
+          title: Kubernetes Namespace
+          type: string
+          default: default
+        projectId:
+          title: Project ID
+          type: string
+        location:
+          title: Location
+          type: string
+
+    - title: Database Configuration
+      required:
+        - engineId
+        - flavor
+        - billingPeriod
+        - storageSize
+      properties:
+        engineId:
+          title: Engine ID
+          type: string
+        flavor:
+          title: Flavor
+          type: string
+        billingPeriod:
+          title: Billing Period
+          type: string
+          enum: [hourly, monthly, yearly]
+        storageSize:
+          title: Storage Size (GB)
+          type: number
+
+  steps:
+    - id: fetch
+      name: Fetch DBaaS Template
+      action: fetch:template
+      input:
+        url: https://raw.githubusercontent.com/Arubacloud/devops-italy-2026/main/argocd/templates/dbaas/skeleton
+        values:
+          name: ${{ parameters.name }}
+          namespace: ${{ parameters.namespace }}
+          projectId: ${{ parameters.projectId }}
+          location: ${{ parameters.location }}
+          engineId: ${{ parameters.engineId }}
+          flavor: ${{ parameters.flavor }}
+          billingPeriod: ${{ parameters.billingPeriod }}
+          storageSize: ${{ parameters.storageSize }}
+
+    - id: apply
+      name: Apply DBaaS Resource
+      action: kubernetes:apply
+      input:
+        manifests:
+          - dbaas.yaml

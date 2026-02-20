@@ -1,0 +1,30 @@
+apiVersion: database.ogen-krateo.arubacloud.com/v1alpha1
+kind: DBaaS
+metadata:
+  name: ${{ values.name }}
+  namespace: ${{ values.namespace }}
+spec:
+  projectId: ${{ values.projectId }}
+
+  metadata:
+    name: ${{ values.name }}
+    location:
+      value: ${{ values.location }}
+
+  configurationRef:
+    name: default
+
+  properties:
+    billingPlan:
+      billingPeriod: ${{ values.billingPeriod }}
+
+    engine:
+      id: ${{ values.engineId }}
+
+    flavor:
+      name: ${{ values.flavor }}
+
+    storage:
+      sizeGB: ${{ values.storageSize }}
+
+    networking: {}
