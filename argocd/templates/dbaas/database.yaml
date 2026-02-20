@@ -1,0 +1,10 @@
+apiVersion: db.example.com/v1alpha1
+kind: Database
+metadata:
+  name: {{ values.name }}
+  namespace: {{ values.namespace }}
+spec:
+  engine: {{ values.engine }}
+  size: {{ values.size }}
+  storageGB: {{ values.storageGB }}
+  backup: {{ values.backup }}

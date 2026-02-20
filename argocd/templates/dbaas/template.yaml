@@ -1,75 +1,74 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: create-dbaas
-  title: Create DBaaS Instance
-  description: Provision a DBaaS custom resource
+  name: create-database
+  title: Create Database
+  description: Create a Database Custom Resource
 spec:
   owner: platform-team
-  type: service
+  type: resource
 
   parameters:
-    - title: General
+    - title: Database Metadata
       required:
         - name
         - namespace
-        - projectId
-        - location
       properties:
         name:
-          title: Resource Name
+          title: Database name
           type: string
         namespace:
-          title: Kubernetes Namespace
+          title: Kubernetes namespace
           type: string
           default: default
-        projectId:
-          title: Project ID
-          type: string
-        location:
-          title: Location
-          type: string
 
     - title: Database Configuration
       required:
-        - engineId
-        - flavor
-        - billingPeriod
-        - storageSize
+        - engine
+        - size
       properties:
-        engineId:
-          title: Engine ID
+        engine:
+          title: Engine
           type: string
-        flavor:
-          title: Flavor
+          enum:
+            - postgres
+            - mysql
+        size:
+          title: Size
           type: string
-        billingPeriod:
-          title: Billing Period
-          type: string
-          enum: [hourly, monthly, yearly]
-        storageSize:
-          title: Storage Size (GB)
+          enum:
+            - small
+            - medium
+            - large
+        storageGB:
+          title: Storage (GB)
           type: number
+          minimum: 10
+          maximum: 1024
+          default: 50
+        backup:
+          title: Enable backup
+          type: boolean
+          default: true
 
   steps:
-    - id: fetch
-      name: Fetch DBaaS Template
+    - id: render
+      name: Render Database CR
       action: fetch:template
       input:
-        url: https://raw.githubusercontent.com/Arubacloud/devops-italy-2026/main/argocd/templates/dbaas/skeleton
+        targetPath: .
+        templateFile: database.yaml
         values:
           name: ${{ parameters.name }}
           namespace: ${{ parameters.namespace }}
-          projectId: ${{ parameters.projectId }}
-          location: ${{ parameters.location }}
-          engineId: ${{ parameters.engineId }}
-          flavor: ${{ parameters.flavor }}
-          billingPeriod: ${{ parameters.billingPeriod }}
-          storageSize: ${{ parameters.storageSize }}
+          engine: ${{ parameters.engine }}
+          size: ${{ parameters.size }}
+          storageGB: ${{ parameters.storageGB }}
+          backup: ${{ parameters.backup }}
 
     - id: apply
-      name: Apply DBaaS Resource
+      name: Apply Database CR
       action: kubernetes:apply
       input:
-        manifests:
-          - dbaas.yaml
+        manifestPath: database.yaml
+        namespace: ${{ parameters.namespace }}
