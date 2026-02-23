@@ -1,0 +1,15 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: Project
+metadata:
+  name: ${{ values.name }}
+  namespace: ${{ values.namespace }}
+spec:
+  tenant: ${{ values.tenant }}
+  description: ${{ values.description }}
+  tags:
+{% if values.tags and values.tags.length %}
+{% for tag in values.tags %}
+  - ${{ tag }}
+{% endfor %}
+{% endif %}
+  default: ${{ values.default }}

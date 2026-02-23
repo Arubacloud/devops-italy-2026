@@ -61,6 +61,8 @@ spec:
       input:
         url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton
         targetPath: content
+        token: ${{ parameters.githubToken }}
+        templateFileExtension: true
         values:
           name: ${{ parameters.name }}
           namespace: ${{ parameters.namespace }}
@@ -68,6 +70,14 @@ spec:
           description: ${{ parameters.description }}
           tags: ${{ parameters.tags }}
           default: ${{ parameters.default }}
+
+    - id: rename-output
+      name: Rename to tenant-project-name.yaml
+      action: fs:rename
+      input:
+        files:
+          - from: content/project.yaml
+            to: content/${{ parameters.tenant }}-project-${{ parameters.name }}.yaml
 
     - id: create-pr
       name: Open PR to GitOps repo
