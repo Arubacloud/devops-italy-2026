@@ -1,0 +1,12 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: Project
+metadata:
+  name: prova-ops-demo
+  namespace: default
+spec:
+  tenant: ARU-297647
+  description: prova-ops-demo
+
+  tags: []
+
+  default: false
