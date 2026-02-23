@@ -59,6 +59,12 @@ spec:
                 client: better-sqlite3
                 connection: ':memory:'
             
+            # Auth: enable guest provider so "Sign in as guest" works without fallback prompt
+            auth:
+              environment: development
+              providers:
+                guest: {}
+            
             # GitHub integration for catalog
             integrations:
               github:
