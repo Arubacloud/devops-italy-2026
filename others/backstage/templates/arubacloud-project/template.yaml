@@ -61,7 +61,7 @@ spec:
       input:
         url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton
         targetPath: content
-        templateFileExtension: '.yaml'
+        templateFileExtension: .yaml
         values:
           name: ${{ parameters.name }}
           namespace: ${{ parameters.namespace }}
