@@ -72,9 +72,7 @@ spec:
               providers:
                 guest: {}
             
-            # GitHub integration for catalog
-                  # For private repos, add: token: ${GITHUB_TOKEN}
-
+            # GitHub integration for catalog and scaffolder (PR, fetch)
             integrations:
               github:
                 - host: github.com
