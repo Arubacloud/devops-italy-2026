@@ -1,0 +1,101 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: arubacloud-project
+  title: Create ArubaCloud Project
+  description: Creates a Project CR (arubacloud.com/v1alpha1) and opens a PR to the GitOps repo. After merge, Argo CD applies it.
+spec:
+  owner: platform-team
+  type: service
+  lifecycle: experimental
+
+  parameters:
+    - title: Project details
+      required:
+        - name
+        - namespace
+        - tenant
+        - githubToken
+      properties:
+        name:
+          title: Name
+          description: Project name (metadata.name)
+          type: string
+          ui:autofocus: true
+        namespace:
+          title: Namespace
+          description: Target Kubernetes namespace
+          type: string
+          default: default
+        tenant:
+          title: Tenant
+          description: Tenant identifier for the project
+          type: string
+        description:
+          title: Description
+          description: Optional project description
+          type: string
+          default: ""
+        tags:
+          title: Tags
+          description: Optional list of tags
+          type: array
+          items:
+            type: string
+          default: []
+        default:
+          title: Default project
+          description: Whether this is the default project
+          type: boolean
+          default: false
+        githubToken:
+          title: GitHub token
+          description: Personal access token (repo scope) to create the PR. Not stored by Backstage.
+          type: string
+          ui:widget: password
+
+  steps:
+    - id: fetch-skeleton
+      name: Fetch Project CR skeleton
+      action: fetch:template
+      input:
+        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton
+        targetPath: content
+        token: ${{ parameters.githubToken }}
+        templateFileExtension: true
+        values:
+          name: ${{ parameters.name }}
+          namespace: ${{ parameters.namespace }}
+          tenant: ${{ parameters.tenant }}
+          description: ${{ parameters.description }}
+          tags: ${{ parameters.tags }}
+          default: ${{ parameters.default }}
+
+    - id: rename-output
+      name: Rename to tenant-project-name.yaml
+      action: fs:rename
+      input:
+        files:
+          - from: content/project.yaml
+            to: content/${{ parameters.tenant }}-project-${{ parameters.name }}.yaml
+
+    - id: create-pr
+      name: Open PR to GitOps repo
+      action: publish:github:pull-request
+      input:
+        repoUrl: github.com?owner=Arubacloud&repo=devops-italy-2026
+        branchName: backstage/project-${{ parameters.tenant }}-project-${{ parameters.name }}
+        token: ${{ parameters.githubToken }}
+        title: Add ArubaCloud Project CR - ${{ parameters.name }}
+        description: |
+          Adds Project Custom Resource (arubacloud.com/v1alpha1) for **${{ parameters.name }}**.
+          After merging, Argo CD will sync and apply the resource.
+        sourcePath: content
+        targetPath: argocd/applications/arubacloud-projects/
+        targetBranchName: main
+
+  output:
+    links:
+      - title: Open pull request
+        url: ${{ steps.create-pr.output.remoteUrl }}/pull/${{ steps.create-pr.output.pullRequestNumber }}
+        icon: pull-request

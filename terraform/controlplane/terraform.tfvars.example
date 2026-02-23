@@ -1,0 +1,25 @@
+# Example Terraform variables file
+# Copy this file to terraform.tfvars and fill in your values
+
+# Cloud Authentication 
+arubacloud_api_key    = "<get-from-cmp-portal>"
+arubacloud_api_secret = "<get-from-cmp-portal>"
+
+# KaaS Cluster Configuration
+kaas_name                  = "devops-italy"
+kaas_location              = "ITBG-Bergamo"
+kaas_tags                  = ["devops-italy", "platform", "gitops"]
+kaas_billing_period        = "Hour"
+kaas_security_group_name   = "kaas-security-group"
+kaas_node_cidr_address     = "10.0.0.0/24"
+kaas_node_cidr_name        = "kaas-node-cidr"
+kaas_pod_cidr              = "10.0.3.0/24"
+kaas_kubernetes_version    = "1.33.2"
+kaas_node_pool_name        = "pool-1"
+kaas_node_pool_nodes       = 2
+kaas_node_pool_instance    = "K2A4"
+kaas_node_pool_zone        = "ITBG-1"
+kaas_node_pool_autoscaling = true
+kaas_node_pool_min_count   = 1
+kaas_node_pool_max_count   = 5
+kaas_ha                    = true

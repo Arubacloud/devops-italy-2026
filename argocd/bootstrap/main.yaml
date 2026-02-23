@@ -1,0 +1,44 @@
+# Bootstrap Application (App of Apps)
+# This application watches argocd/applications/ folder and automatically creates
+# an ArgoCD Application for every YAML file found in that directory
+#
+# How it works:
+# 1. Watches argocd/applications/ in your Git repository
+# 2. For each YAML file, creates an ArgoCD Application resource
+# 3. Those applications then sync their own content from Git
+#
+# Applied by Terraform during cluster bootstrap
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bootstrap-apps
+  namespace: argocd
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/Arubacloud/devops-italy-2026.git
+    targetRevision: HEAD
+    path: argocd/applications
+    
+    # Directory mode automatically discovers all YAML files in the path
+    directory:
+      recurse: true  # Scan subdirectories for application definitions
+      
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+    
+  syncPolicy:
+    automated:
+      prune: true      # Remove applications when file is deleted from Git
+      selfHeal: true   # Automatically sync when files change in Git
+    syncOptions:
+      - CreateNamespace=false  # argocd namespace already exists
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
