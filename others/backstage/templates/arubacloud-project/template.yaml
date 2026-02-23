@@ -66,7 +66,7 @@ spec:
       name: Open PR to GitOps repo
       action: publish:github:pull-request
       input:
-        repoUrl: https://github.com/Arubacloud/devops-italy-2026
+        repoUrl: github.com?owner=Arubacloud&repo=devops-italy-2026
         branchName: backstage/project-${{ parameters.tenant }}-project-${{ parameters.name }}
         title: Add ArubaCloud Project CR - ${{ parameters.name }}
         description: |
