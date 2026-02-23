@@ -89,9 +89,9 @@ spec:
                 # Example entities from Backstage
                 - type: url
                   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
-                # Local templates - update this URL to your Git repository
-                # For now, you'll need to manually import via Backstage UI:
-                # Create > Register Existing Component > paste the raw GitHub URL to catalog-info.yaml
+                # ArubaCloud Project template (raw URL so Backstage can load the template YAML)
+                - type: url
+                  target: https://raw.githubusercontent.com/Arubacloud/devops-italy-2026/main/others/backstage/templates/arubacloud-project/template.yaml
         
         # Service Account for Kubernetes API access
         serviceAccount:
