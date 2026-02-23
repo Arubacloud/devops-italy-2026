@@ -50,6 +50,11 @@ spec:
               cors:
                 origin: http://localhost:7007
                 credentials: true
+              # Allow backend to read from these hosts (e.g. catalog template URLs)
+              reading:
+                allow:
+                  - host: raw.githubusercontent.com
+                  - host: github.com
               # Allow unauthenticated API access so guest can load catalog (dev/internal only)
               auth:
                 dangerouslyDisableDefaultAuthPolicy: true
