@@ -53,7 +53,7 @@ spec:
       name: Fetch Project CR skeleton
       action: fetch:template
       input:
-        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton/project.yaml
+        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton
         values:
           name: ${{ parameters.name }}
           namespace: ${{ parameters.namespace }}
@@ -66,7 +66,7 @@ spec:
       name: Open PR to GitOps repo
       action: publish:github:pull-request
       input:
-        repoUrl: https://github.com/Arubacloud/devops-italy-2026
+        repoUrl: github.com/Arubacloud/devops-italy-2026
         branchName: backstage/project-${{ parameters.tenant }}-project-${{ parameters.name }}
         title: Add ArubaCloud Project CR - ${{ parameters.name }}
         description: |
