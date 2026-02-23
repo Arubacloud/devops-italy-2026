@@ -50,7 +50,9 @@ spec:
               cors:
                 origin: http://localhost:7007
                 credentials: true
-              
+              # Allow unauthenticated API access so guest can load catalog (dev/internal only)
+              auth:
+                dangerouslyDisableDefaultAuthPolicy: true
               # Kubernetes plugin configuration
               csp:
                 connect-src: ["'self'", 'http:', 'https:']
