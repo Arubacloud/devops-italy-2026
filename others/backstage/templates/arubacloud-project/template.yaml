@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: arubacloud-project
   title: Create ArubaCloud Project
-  description: Creates a Project Custom Resource (arubacloud.com/v1alpha1) and applies it directly to the cluster (no Git, no Argo CD).
+  description: Creates a Project CR (arubacloud.com/v1alpha1) and opens a PR to the GitOps repo. After merge, Argo CD applies it.
 spec:
   owner: platform-team
   type: service
@@ -49,26 +49,35 @@ spec:
           default: false
 
   steps:
-    - id: apply-cr
-      name: Apply ArubaCloud Project to cluster
-      action: kube:apply
+    - id: fetch-skeleton
+      name: Fetch Project CR skeleton
+      action: fetch:template
       input:
-        clusterName: local-cluster
-        namespaced: true
-        manifest: |
-          apiVersion: arubacloud.com/v1alpha1
-          kind: Project
-          metadata:
-            name: ${{ parameters.name }}
-            namespace: ${{ parameters.namespace }}
-          spec:
-            tenant: ${{ parameters.tenant }}
-            description: ${{ parameters.description }}
-            tags: ${{ parameters.tags }}
-            default: ${{ parameters.default }}
+        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton/
+        values:
+          name: ${{ parameters.name }}
+          namespace: ${{ parameters.namespace }}
+          tenant: ${{ parameters.tenant }}
+          description: ${{ parameters.description }}
+          tags: ${{ parameters.tags }}
+          default: ${{ parameters.default }}
+
+    - id: create-pr
+      name: Open PR to GitOps repo
+      action: publish:github:pull-request
+      input:
+        repoUrl: https://github.com/Arubacloud/devops-italy-2026
+        branchName: backstage/project-${{ parameters.tenant }}-project-${{ parameters.name }}
+        title: Add ArubaCloud Project CR - ${{ parameters.name }}
+        description: |
+          Adds Project Custom Resource (arubacloud.com/v1alpha1) for **${{ parameters.name }}**.
+          After merging, Argo CD will sync and apply the resource.
+        sourcePath: project.yaml
+        targetPath: argocd/applications/arubacloud-projects/${{ parameters.tenant }}-project-${{ parameters.name }}.yaml
+        targetBranchName: main
 
   output:
     links:
-      - title: Project created
-        url: /
-        icon: folder
+      - title: Open pull request
+        url: ${{ steps.create-pr.output.remoteUrl }}/pull/${{ steps.create-pr.output.pullRequestNumber }}
+        icon: pull-request
