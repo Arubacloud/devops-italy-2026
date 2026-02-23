@@ -73,12 +73,19 @@ spec:
                 guest: {}
             
             # GitHub integration for catalog
+                  # For private repos, add: token: ${GITHUB_TOKEN}
+
             integrations:
               github:
                 - host: github.com
                   # For public repos, no token needed
                   # For private repos, add: token: ${GITHUB_TOKEN}
-            
+                # Workaround: parseRepoUrl in publish:github:pull-request sometimes resolves host as "https"
+                - host: https
+                  apiBaseUrl: https://api.github.com
+                  rawBaseUrl: https://raw.githubusercontent.com
+                  # If repo is private, add: token: ${GITHUB_TOKEN}
+
             # Enable Kubernetes plugin
             kubernetes:
               serviceLocatorMethod:
