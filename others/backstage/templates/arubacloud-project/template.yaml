@@ -52,7 +52,8 @@ spec:
           title: GitHub token
           description: Personal access token (repo scope) to create the PR. Not stored by Backstage.
           type: string
-          ui:widget: password
+          ui:field: Secret
+
   steps:
     - id: fetch-skeleton
       name: Fetch Project CR skeleton
