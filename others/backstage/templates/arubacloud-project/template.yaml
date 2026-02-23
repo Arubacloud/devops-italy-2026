@@ -15,6 +15,7 @@ spec:
         - name
         - namespace
         - tenant
+        - githubToken
       properties:
         name:
           title: Name
@@ -47,7 +48,11 @@ spec:
           description: Whether this is the default project
           type: boolean
           default: false
-
+        githubToken:
+          title: GitHub token
+          description: Personal access token (repo scope) to create the PR. Not stored by Backstage.
+          type: string
+          ui:widget: password
   steps:
     - id: fetch-skeleton
       name: Fetch Project CR skeleton
@@ -68,6 +73,7 @@ spec:
       input:
         repoUrl: github.com?owner=Arubacloud&repo=devops-italy-2026
         branchName: backstage/project-${{ parameters.tenant }}-project-${{ parameters.name }}
+        token: ${{ parameters.githubToken }}
         title: Add ArubaCloud Project CR - ${{ parameters.name }}
         description: |
           Adds Project Custom Resource (arubacloud.com/v1alpha1) for **${{ parameters.name }}**.
