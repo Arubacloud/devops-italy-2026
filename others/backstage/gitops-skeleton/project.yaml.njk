@@ -11,5 +11,7 @@ spec:
 {% for tag in values.tags %}
   - ${{ tag }}
 {% endfor %}
+{% else %}
+  []
 {% endif %}
   default: ${{ values.default }}
