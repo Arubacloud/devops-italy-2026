@@ -60,6 +60,7 @@ spec:
       action: fetch:template
       input:
         url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton
+        targetPath: content
         values:
           name: ${{ parameters.name }}
           namespace: ${{ parameters.namespace }}
@@ -79,7 +80,7 @@ spec:
         description: |
           Adds Project Custom Resource (arubacloud.com/v1alpha1) for **${{ parameters.name }}**.
           After merging, Argo CD will sync and apply the resource.
-        sourcePath: project.yaml
+        sourcePath: content
         targetPath: argocd/applications/arubacloud-projects/${{ parameters.tenant }}-project-${{ parameters.name }}.yaml
         targetBranchName: main
 
