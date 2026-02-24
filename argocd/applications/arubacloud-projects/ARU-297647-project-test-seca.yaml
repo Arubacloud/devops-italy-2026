@@ -1,0 +1,12 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: Project
+metadata:
+  name: test-seca
+  namespace: default
+spec:
+  tenant: ARU-297647
+  description: test-seca
+
+  tags: []
+
+  default: false
