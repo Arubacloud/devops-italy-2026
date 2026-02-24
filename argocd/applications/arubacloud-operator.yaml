@@ -19,6 +19,11 @@ spec:
     targetRevision: 0.1.0
     helm:
       values: |
+        controller:
+          manager:
+            image:
+              tag: 0.0.2
+
         config:
           auth:
             mode: multi
