@@ -22,8 +22,8 @@ spec:
         controller:
           manager:
             image:
-              tag: 0.0.2
-
+              repository: ghcr.io/arubacloud/arubacloud-resource-operator
+              tag: latest
         config:
           auth:
             mode: multi
