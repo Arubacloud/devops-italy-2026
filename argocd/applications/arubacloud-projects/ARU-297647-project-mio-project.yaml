@@ -1,0 +1,12 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: Project
+metadata:
+  name: mio-project
+  namespace: default
+spec:
+  tenant: ARU-297647
+  description: mio-project
+
+  tags: []
+
+  default: false

@@ -1,0 +1,20 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: BlockStorage
+metadata:
+  name: mio-project
+  namespace: default
+spec:
+  tenant: ARU-297647
+
+  tags: []
+
+  location:
+    value: 
+  sizeGb: 
+  billingPeriod: 
+  dataCenter: 
+  bootable: 
+  image: 
+  projectReference:
+    name: 
+    namespace: 
