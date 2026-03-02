@@ -6,12 +6,12 @@ metadata:
 spec:
   tenant: ${{ values.tenant }}
   description: ${{ values.description }}
-{% if values.tags and values.tags.length %}
+{%- if values.tags and values.tags.length %}
   tags:
 {% for tag in values.tags %}
   - ${{ tag }}
-{% endfor %}
-{% else %}
+{%- endfor %}
+{%- else %}
   tags: []
-{% endif %}
+{%- endif %}
   default: ${{ values.default }}
