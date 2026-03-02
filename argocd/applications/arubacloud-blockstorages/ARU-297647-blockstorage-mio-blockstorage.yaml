@@ -1,0 +1,20 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: BlockStorage
+metadata:
+  name: mio-blockstorage
+  namespace: default
+spec:
+  tenant: ARU-297647
+
+  tags: []
+
+  location:
+    value: ITBG-Bergamo
+  sizeGb: 40
+  billingPeriod: Hour
+  dataCenter: ITBG-A
+  bootable: true
+  image: LU22-001
+  projectReference:
+    name: mio-project
+    namespace: default
