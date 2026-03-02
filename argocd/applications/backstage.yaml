@@ -28,13 +28,16 @@ spec:
             tag: latest
           
           # Extra environment variables for runtime configuration
+          # Config is loaded from MergedConfigSource: app-config-from-configmap.yaml (from appConfig below) + these env overrides.
+          # If the UI does not show up, ensure app.baseUrl and backend.baseUrl match how you access Backstage (e.g. http://localhost:7007 when using port-forward).
           extraEnvVars:
             - name: APP_CONFIG_app_baseUrl
               value: "http://localhost:7007"
-            - name: APP_CONFIG_backend_baseUrl  
+            - name: APP_CONFIG_backend_baseUrl
               value: "http://localhost:7007"
+            # Use "info" so errors and warnings are visible; use "debug" for verbose catalog/scaffolder logs
             - name: LOG_LEVEL
-              value: "debug"
+              value: "info"
           
           # Application configuration
           appConfig:
