@@ -1,0 +1,20 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: BlockStorage
+metadata:
+  name: test-mio-blockstorage
+  namespace: ARU-297647
+spec:
+  tenant: ARU-297647
+
+  tags: []
+
+  location:
+    value: ITBG-Bergamo
+  sizeGb: 17
+  billingPeriod: Hour
+  dataCenter: ITBG-1
+  bootable: true
+  image: LU20-001
+  projectReference:
+    name: test-mio-project
+    namespace: ARU-297647
