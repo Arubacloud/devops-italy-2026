@@ -104,12 +104,13 @@ spec:
               rules:
                 - allow: [Component, System, API, Resource, Location, Template]
               locations:
-                # Example entities from Backstage
-                - type: url
-                  target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
-                # ArubaCloud Project template (raw URL so Backstage can load the template YAML)
+                # ArubaCloud templates (raw URL so Backstage can load the template YAML)
                 - type: url
                   target: https://raw.githubusercontent.com/Arubacloud/devops-italy-2026/main/others/backstage/templates/arubacloud-project/template.yaml
+                - type: url
+                  target: https://raw.githubusercontent.com/Arubacloud/devops-italy-2026/main/others/backstage/templates/arubacloud-blockstorage/template.yaml
+                - type: url
+                  target: https://raw.githubusercontent.com/Arubacloud/devops-italy-2026/main/others/backstage/templates/arubacloud-elasticip/template.yaml
         
         # Service Account for Kubernetes API access
         serviceAccount:

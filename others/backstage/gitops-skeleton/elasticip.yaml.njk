@@ -1,0 +1,22 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: ElasticIp
+metadata:
+  name: ${{ values.name }}
+  namespace: ${{ values.namespace }}
+spec:
+  tenant: ${{ values.tenant }}
+{% if values.tags and values.tags.length %}
+  tags:
+{% for tag in values.tags %}
+  - ${{ tag }}
+{% endfor %}
+{% else %}
+  tags: []
+{% endif %}
+  location:
+    value: ${{ values.location }}
+  billingPlan:
+    billingPeriod: ${{ values.billingPeriod }}
+  projectReference:
+    name: ${{ values.projectName }}
+    namespace: ${{ values.projectNamespace }}

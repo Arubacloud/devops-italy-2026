@@ -1,0 +1,122 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: arubacloud-elasticip
+  title: Create ArubaCloud ElasticIp
+  description: Creates an ElasticIp CR (arubacloud.com/v1alpha1) and opens a PR to the GitOps repo. After merge, Argo CD applies it.
+spec:
+  owner: platform-team
+  type: service
+  lifecycle: experimental
+
+  parameters:
+    - title: ElasticIp details
+      required:
+        - name
+        - namespace
+        - tenant
+        - location
+        - billingPeriod
+        - projectName
+        - projectNamespace
+        - githubToken
+      properties:
+        name:
+          title: Name
+          description: ElasticIp name (metadata.name)
+          type: string
+          ui:autofocus: true
+        namespace:
+          title: Namespace
+          description: Target Kubernetes namespace
+          type: string
+          default: default
+        tenant:
+          title: Tenant
+          description: Tenant identifier
+          type: string
+        location:
+          title: Location
+          description: Location value for the elastic IP
+          type: string
+        billingPeriod:
+          title: Billing period
+          description: Billing period for the resource
+          type: string
+        projectName:
+          title: Project name
+          description: Name of the referenced Project CR
+          type: string
+        projectNamespace:
+          title: Project namespace
+          description: Namespace of the referenced Project CR
+          type: string
+          default: default
+        tags:
+          title: Tags
+          description: Optional list of tags
+          type: array
+          items:
+            type: string
+          default: []
+        githubToken:
+          title: GitHub token
+          description: Personal access token (repo scope) to create the PR. Not stored by Backstage.
+          type: string
+          ui:widget: password
+
+  steps:
+    - id: fetch-skeleton
+      name: Fetch ElasticIp CR skeleton
+      action: fetch:template
+      input:
+        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton
+        targetPath: content
+        token: ${{ parameters.githubToken }}
+        templateFileExtension: true
+        values:
+          name: ${{ parameters.name }}
+          namespace: ${{ parameters.namespace }}
+          tenant: ${{ parameters.tenant }}
+          tags: ${{ parameters.tags }}
+          location: ${{ parameters.location }}
+          billingPeriod: ${{ parameters.billingPeriod }}
+          projectName: ${{ parameters.projectName }}
+          projectNamespace: ${{ parameters.projectNamespace }}
+
+    - id: rename-output
+      name: Rename to tenant-elasticip-name.yaml
+      action: fs:rename
+      input:
+        files:
+          - from: content/elasticip.yaml
+            to: content/${{ parameters.tenant }}-elasticip-${{ parameters.name }}.yaml
+
+    - id: cleanup-others
+      name: Remove other rendered files
+      action: fs:delete
+      input:
+        files:
+          - content/project.yaml
+          - content/blockstorage.yaml
+
+    - id: create-pr
+      name: Open PR to GitOps repo
+      action: publish:github:pull-request
+      input:
+        repoUrl: github.com?owner=Arubacloud&repo=devops-italy-2026
+        branchName: backstage/elasticip-${{ parameters.tenant }}-elasticip-${{ parameters.name }}
+        token: ${{ parameters.githubToken }}
+        title: Add ArubaCloud ElasticIp CR - ${{ parameters.name }}
+        description: |
+          Adds ElasticIp Custom Resource (arubacloud.com/v1alpha1) for **${{ parameters.name }}**.
+          After merging, Argo CD will sync and apply the resource.
+        sourcePath: content
+        targetPath: argocd/applications/arubacloud-elasticips/
+        targetBranchName: main
+
+  output:
+    links:
+      - title: Open pull request
+        url: ${{ steps.create-pr.output.remoteUrl }}/pull/${{ steps.create-pr.output.pullRequestNumber }}
+        icon: pull-request
