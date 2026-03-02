@@ -59,7 +59,7 @@ spec:
       name: Fetch Project CR skeleton
       action: fetch:template
       input:
-        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton
+        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton-project
         targetPath: content
         token: ${{ parameters.githubToken }}
         templateFileExtension: true

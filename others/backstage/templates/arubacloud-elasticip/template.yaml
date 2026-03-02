@@ -39,10 +39,16 @@ spec:
           title: Location
           description: Location value for the elastic IP
           type: string
+          enum:
+            - ITBG-Bergamo
+          default: ITBG-Bergamo
         billingPeriod:
           title: Billing period
           description: Billing period for the resource
           type: string
+          enum:
+            - Hour
+          default: Hour
         projectName:
           title: Project name
           description: Name of the referenced Project CR
@@ -70,7 +76,7 @@ spec:
       name: Fetch ElasticIp CR skeleton
       action: fetch:template
       input:
-        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton
+        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton-elasticip
         targetPath: content
         token: ${{ parameters.githubToken }}
         templateFileExtension: true
@@ -82,23 +88,15 @@ spec:
           location: ${{ parameters.location }}
           billingPeriod: ${{ parameters.billingPeriod }}
           projectName: ${{ parameters.projectName }}
-          projectNamespace: ${{ parameters.projectNamespace }}
+          projectNamespace: ${{ parameters.namespace }}
 
     - id: rename-output
-      name: Rename to tenant-elasticip-name.yaml
+      name: Rename to tenant-project-projectName-elasticip-name.yaml
       action: fs:rename
       input:
         files:
           - from: content/elasticip.yaml
-            to: content/${{ parameters.tenant }}-elasticip-${{ parameters.name }}.yaml
-
-    - id: cleanup-others
-      name: Remove other rendered files
-      action: fs:delete
-      input:
-        files:
-          - content/project.yaml
-          - content/blockstorage.yaml
+            to: content/${{ parameters.tenant }}-project-${{ parameters.projectName }}-elasticip-${{ parameters.name }}.yaml
 
     - id: create-pr
       name: Open PR to GitOps repo

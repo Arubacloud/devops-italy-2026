@@ -43,6 +43,9 @@ spec:
           title: Location
           description: Location value for the block storage
           type: string
+          enum:
+            - ITBG-Bergamo
+          default: ITBG-Bergamo
         sizeGb:
           title: Size (GB)
           description: Block storage size in GB
@@ -51,10 +54,18 @@ spec:
           title: Billing period
           description: Billing period for the resource
           type: string
+          enum:
+            - Hour
+          default: Hour
         dataCenter:
-          title: Data center
-          description: Data center identifier
+          title: Zone
+          description: Zone for the block storage (ITBG-1, ITBG-2, ITBG-3)
           type: string
+          enum:
+            - ITBG-1
+            - ITBG-2
+            - ITBG-3
+          default: ITBG-1
         bootable:
           title: Bootable
           description: Whether the volume is bootable
@@ -63,6 +74,18 @@ spec:
           title: Image
           description: Image reference for bootable volumes
           type: string
+          enum:
+            - alma8
+            - DE11-001
+            - osuse15_2_x64_1_0
+            - alma9
+            - WS19-001_W2K19_1_0
+            - DE12-001
+            - LU22-001
+            - WS22-001_W2K22_1_0
+            - LU20-001
+            - LU24-001
+          default: alma9
         projectName:
           title: Project name
           description: Name of the referenced Project CR
@@ -90,7 +113,7 @@ spec:
       name: Fetch BlockStorage CR skeleton
       action: fetch:template
       input:
-        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton
+        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton-blockstorage
         targetPath: content
         token: ${{ parameters.githubToken }}
         templateFileExtension: true
@@ -106,23 +129,15 @@ spec:
           bootable: ${{ parameters.bootable }}
           image: ${{ parameters.image }}
           projectName: ${{ parameters.projectName }}
-          projectNamespace: ${{ parameters.projectNamespace }}
+          projectNamespace: ${{ parameters.namespace }}
 
     - id: rename-output
-      name: Rename to tenant-blockstorage-name.yaml
+      name: Rename to tenant-project-projectName-blockstorage-name.yaml
       action: fs:rename
       input:
         files:
           - from: content/blockstorage.yaml
-            to: content/${{ parameters.tenant }}-blockstorage-${{ parameters.name }}.yaml
-
-    - id: cleanup-others
-      name: Remove other rendered files
-      action: fs:delete
-      input:
-        files:
-          - content/project.yaml
-          - content/elasticip.yaml
+            to: content/${{ parameters.tenant }}-project-${{ parameters.projectName }}-blockstorage-${{ parameters.name }}.yaml
 
     - id: create-pr
       name: Open PR to GitOps repo
