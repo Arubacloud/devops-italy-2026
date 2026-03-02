@@ -13,12 +13,10 @@ spec:
     - title: ElasticIp details
       required:
         - name
-        - namespace
         - tenant
         - location
         - billingPeriod
         - projectName
-        - projectNamespace
         - githubToken
       properties:
         name:
@@ -26,11 +24,6 @@ spec:
           description: ElasticIp name (metadata.name)
           type: string
           ui:autofocus: true
-        namespace:
-          title: Namespace
-          description: Target Kubernetes namespace
-          type: string
-          default: default
         tenant:
           title: Tenant
           description: Tenant identifier
@@ -53,11 +46,6 @@ spec:
           title: Project name
           description: Name of the referenced Project CR
           type: string
-        projectNamespace:
-          title: Project namespace
-          description: Namespace of the referenced Project CR
-          type: string
-          default: default
         tags:
           title: Tags
           description: Optional list of tags
@@ -82,13 +70,13 @@ spec:
         templateFileExtension: true
         values:
           name: ${{ parameters.name }}
-          namespace: ${{ parameters.namespace }}
+          namespace: ${{ parameters.tenant }}
           tenant: ${{ parameters.tenant }}
           tags: ${{ parameters.tags }}
           location: ${{ parameters.location }}
           billingPeriod: ${{ parameters.billingPeriod }}
           projectName: ${{ parameters.projectName }}
-          projectNamespace: ${{ parameters.namespace }}
+          projectNamespace: ${{ parameters.tenant }}
 
     - id: rename-output
       name: Rename to tenant-project-projectName-elasticip-name.yaml

@@ -13,7 +13,6 @@ spec:
     - title: Project details
       required:
         - name
-        - namespace
         - tenant
         - githubToken
       properties:
@@ -22,11 +21,6 @@ spec:
           description: Project name (metadata.name)
           type: string
           ui:autofocus: true
-        namespace:
-          title: Namespace
-          description: Target Kubernetes namespace
-          type: string
-          default: default
         tenant:
           title: Tenant
           description: Tenant identifier for the project
@@ -65,7 +59,7 @@ spec:
         templateFileExtension: true
         values:
           name: ${{ parameters.name }}
-          namespace: ${{ parameters.namespace }}
+          namespace: ${{ parameters.tenant }}
           tenant: ${{ parameters.tenant }}
           description: ${{ parameters.description }}
           tags: ${{ parameters.tags }}
