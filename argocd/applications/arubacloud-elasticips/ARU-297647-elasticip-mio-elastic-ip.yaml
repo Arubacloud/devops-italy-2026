@@ -1,0 +1,17 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: ElasticIp
+metadata:
+  name: mio-elastic-ip
+  namespace: default
+spec:
+  tenant: ARU-297647
+
+  tags: []
+
+  location:
+    value: ITBG-Bergamo
+  billingPlan:
+    billingPeriod: Hour
+  projectReference:
+    name: mio-project
+    namespace: default
