@@ -65,7 +65,7 @@ spec:
       action: fetch:template
       input:
         url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton-elasticip
-        targetPath: content
+        targetPath: content/argocd/applications/${{ parameters.tenant }}
         token: ${{ parameters.githubToken }}
         templateFileExtension: true
         values:
@@ -78,64 +78,15 @@ spec:
           projectName: ${{ parameters.projectName }}
           projectNamespace: ${{ parameters.tenant }}
 
-    - id: ensure-tenant-app-dir
-      name: Ensure tenant ArgoCD app directory and tenant Application
-      action: roadiehq:utils:fs:write
+    - id: fetch-argo-app
+      name: Ensure Tenant Application exists
+      action: fetch:template
       input:
-        path: content/argocd/applications/${{ parameters.tenant }}
-        content: |
-          # This directory will hold all ArgoCD Applications for tenant ${{ parameters.tenant }}
-          # The Application "${{ parameters.tenant }}.yaml" in argocd/tenants/ will watch this folder.
-
-    - id: ensure-tenant-app-of-apps
-      name: Create tenant ArgoCD Application (App of Apps)
-      action: roadiehq:utils:fs:write
-      input:
-        path: content/argocd/tenants/${{ parameters.tenant }}.yaml
-        content: |
-          # ArgoCD Application (App of Apps) for tenant ${{ parameters.tenant }}
-          # Watches argocd/applications/${{ parameters.tenant }} and syncs all YAML files found there
-          apiVersion: argoproj.io/v1alpha1
-          kind: Application
-          metadata:
-            name: ${{ parameters.tenant }}
-            namespace: argocd
-          spec:
-            project: default
-
-            source:
-              repoURL: https://github.com/Arubacloud/devops-italy-2026.git
-              targetRevision: HEAD
-              path: argocd/applications/${{ parameters.tenant }}
-
-              # Directory mode: recursive scan of all YAML files under the path
-              directory:
-                recurse: true   # Scan subdirectories for application definitions
-
-            destination:
-              server: https://kubernetes.default.svc
-              namespace: argocd
-
-            syncPolicy:
-              automated:
-                prune: true     # Remove applications when file is deleted from Git
-                selfHeal: true  # Automatically sync when files change in Git
-              syncOptions:
-                - CreateNamespace=true   # Create tenant namespaces when they appear in manifests
-              retry:
-                limit: 5
-                backoff:
-                  duration: 5s
-                  factor: 2
-                  maxDuration: 3m
-
-    - id: rename-output
-      name: Move elasticIp CR into tenant folder
-      action: fs:rename
-      input:
-        files:
-          - from: content/elasticip.yaml
-            to: content/argocd/applications/${{ parameters.tenant }}/project-${{ parameters.projectName }}-elasticip-${{ parameters.name }}.yaml
+        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/argo-app-template
+        targetPath: content/argocd/tenants
+        token: ${{ parameters.githubToken }}
+        values:
+          tenant: ${{ parameters.tenant }}
 
     - id: create-pr
       name: Open PR to GitOps repo
