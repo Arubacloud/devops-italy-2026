@@ -60,7 +60,7 @@ spec:
           default: ITBG-1
         bootable:
           title: Bootable
-          description: Whether the volume is bootable (if not set, the CR will have bootable: false)
+          description: "Whether the volume is bootable (if not set, the CR will have bootable: false)."
           type: boolean
           default: false
         image:
