@@ -2,7 +2,7 @@ apiVersion: arubacloud.com/v1alpha1
 kind: Project
 metadata:
   name: ${{ values.name }}
-  namespace: ${{ values.namespace }}
+  namespace: tenant-${{ values.tenant | lower }}
 spec:
   tenant: ${{ values.tenant }}
   description: ${{ values.description }}

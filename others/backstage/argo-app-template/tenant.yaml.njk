@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: tenant-${{ values.tenant }}
+  name: tenant-${{ values.tenant | lower }}
   namespace: argocd
 spec:
   project: default
@@ -13,7 +13,7 @@ spec:
       recurse: true
   destination:
     server: https://kubernetes.default.svc
-    namespace: tenant-${{ values.tenant }}
+    namespace: tenant-${{ values.tenant | lower }}
   syncPolicy:
     automated:
       prune: true

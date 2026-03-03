@@ -1,7 +1,7 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: arubacloud-create-tenant
+  name: idp-tenant
   title: Create Tenant
   description: Creates the tenant folder with namespace and Argo CD Application. Run once per tenant before adding projects.
 spec:

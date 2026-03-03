@@ -2,7 +2,7 @@ apiVersion: arubacloud.com/v1alpha1
 kind: ElasticIp
 metadata:
   name: ${{ values.name }}
-  namespace: ${{ values.namespace }}
+  namespace: tenant-${{ values.tenant | lower }}
 spec:
   tenant: ${{ values.tenant }}
 {%- if values.tags and values.tags.length %}
@@ -19,4 +19,4 @@ spec:
     billingPeriod: ${{ values.billingPeriod }}
   projectReference:
     name: ${{ values.projectName }}
-    namespace: ${{ values.projectNamespace }}
+    namespace: tenant-${{ values.tenant | lower }}
