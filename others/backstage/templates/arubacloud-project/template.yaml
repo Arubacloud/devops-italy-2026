@@ -65,13 +65,14 @@ spec:
           tags: ${{ parameters.tags }}
           default: ${{ parameters.default }}
 
-    # 2. Ensure tenant app dir exists (marker)
-    - id: fetch-tenant-dir
-      name: Ensure tenant app dir marker (idempotent)
+    # 2. Fix: Creazione marker inline per evitare errore FetchUrlReader
+    - id: create-tenant-marker
+      name: Ensure tenant app dir (marker)
       action: fetch:plain
       input:
-        url: https://raw.githubusercontent.com/Arubacloud/devops-italy-2026/main/others/backstage/gitops-skeleton-project/tenant-marker.txt
-        targetPath: ./argocd/applications/${{ parameters.tenant }}/marker.txt
+        targetPath: ./argocd/applications/${{ parameters.tenant }}/.gitkeep
+        content: |
+          Managed by Backstage IDP - Tenant: ${{ parameters.tenant }}
 
     # 3. Apply App of Apps Pattern
     - id: fetch-app-of-apps
@@ -126,7 +127,7 @@ spec:
         repoUrl: github.com?owner=Arubacloud&repo=devops-italy-2026
         branchName: backstage/${{ parameters.tenant }}-project-${{ parameters.name }}
         token: ${{ parameters.githubToken }}
-        title: Add ArubaCloud Project CR - ${{ parameters.name }} - tenant ${{ parameters.tenant }}
+        title: "Add ArubaCloud Project CR - ${{ parameters.name }} (Tenant: ${{ parameters.tenant }})"
         description: |
           Adds Project Custom Resource (arubacloud.com/v1alpha1) for **${{ parameters.name }}**.
           After merging, Argo CD will sync and apply the resource.
@@ -137,5 +138,5 @@ spec:
   output:
     links:
       - title: Open pull request
-        url: ${{ steps['create-pr'].output.remoteUrl }}/pull/${{ steps['create-pr'].output.pullRequestNumber }}
+        url: ${{ steps['create-pr'].output.remoteUrl }}
         icon: pull-request
