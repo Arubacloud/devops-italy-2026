@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ${{ values.tenant }}
+  name: {{ values.tenant }}
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/Arubacloud/devops-italy-2026.git
     targetRevision: HEAD
-    path: argocd/applications/${{ values.tenant }}
+    path: argocd/applications/{{ values.tenant }}
     directory:
       recurse: true
   destination:

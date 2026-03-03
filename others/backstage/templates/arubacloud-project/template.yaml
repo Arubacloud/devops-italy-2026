@@ -73,7 +73,6 @@ spec:
         url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/argo-app-template
         targetPath: ./argocd/tenants
         token: ${{ parameters.githubToken }}
-        cookiecutterCompat: true   # Template file/dir names (e.g. {{ tenant }}.yaml.njk -> tenantName.yaml)
         values:
           tenant: ${{ parameters.tenant }}
 
