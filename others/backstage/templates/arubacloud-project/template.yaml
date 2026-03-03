@@ -73,7 +73,13 @@ spec:
         token: ${{ parameters.githubToken }}
         title: "feat: add project ${{ parameters.name }} to tenant ${{ parameters.tenant }}"
         description: |
-          Aggiunta del progetto ArubaCloud al tenant ${{ parameters.tenant }}.
-          Il tenant deve essere già stato creato con il template "Create Tenant" (idp-tenant).
+          ## Summary
+          Adds ArubaCloud Project **${{ parameters.name }}** to tenant **${{ parameters.tenant }}**.
+
+          ## Files added
+          - `argocd/applications/${{ parameters.tenant }}/project-${{ parameters.name }}.yaml`
+
+          ## Prerequisite
+          The tenant must already exist (create it with **Create Tenant** / idp-tenant).
         sourcePath: ./
         targetPath: .

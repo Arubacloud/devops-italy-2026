@@ -18,7 +18,11 @@ spec:
   sizeGb: ${{ values.sizeGb }}
   billingPeriod: ${{ values.billingPeriod }}
   dataCenter: ${{ values.dataCenter }}
-  bootable: ${{ values.bootable }}
+{%- if values.bootable %}
+  bootable: true
+{%- else %}
+  bootable: false
+{%- endif %}
   image: ${{ values.image }}
   projectReference:
     name: ${{ values.projectName }}

@@ -64,10 +64,15 @@ spec:
         token: ${{ parameters.githubToken }}
         title: "feat: add tenant ${{ parameters.tenant }} (namespace + Argo CD Application)"
         description: |
-          Creates the tenant folder for **${{ parameters.tenant }}**:
-          - argocd/tenants/${{ parameters.tenant }}.yaml (Argo CD Application for this tenant)
-          - argocd/applications/${{ parameters.tenant }}/namespace.yaml (tenant namespace)
-          After merge, add projects via "Create ArubaCloud Project".
+          ## Summary
+          Creates the tenant **${{ parameters.tenant }}** (namespace + Argo CD Application).
+
+          ## Files added
+          - `argocd/tenants/${{ parameters.tenant }}.yaml` — Argo CD Application for this tenant
+          - `argocd/applications/${{ parameters.tenant }}/namespace.yaml` — tenant namespace
+
+          ## Next steps
+          After merge, add projects via **Create ArubaCloud Project**.
         sourcePath: .
         targetPath: .
 

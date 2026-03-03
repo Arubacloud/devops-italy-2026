@@ -65,7 +65,7 @@ spec:
       action: fetch:template
       input:
         url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton-elasticip
-        targetPath: content/argocd/applications/${{ parameters.tenant }}
+        targetPath: ./argocd/applications/${{ parameters.tenant }}
         token: ${{ parameters.githubToken }}
         templateFileExtension: true
         values:
@@ -87,11 +87,16 @@ spec:
         token: ${{ parameters.githubToken }}
         title: Add ArubaCloud ElasticIp CR - ${{ parameters.name }} for project ${{ parameters.projectName }} - tenant ${{ parameters.tenant }}
         description: |
-          Adds ElasticIp Custom Resource (arubacloud.com/v1alpha1) for **${{ parameters.name }}**.
-          After merging, Argo CD will sync and apply the resource.
-        sourcePath: content
-        targetPath: argocd/applications/arubacloud-elasticips/
-        targetBranchName: main
+          ## Summary
+          Adds ElasticIp CR (arubacloud.com/v1alpha1) **${{ parameters.name }}** for project **${{ parameters.projectName }}** in tenant **${{ parameters.tenant }}**.
+
+          ## Files added
+          - `argocd/applications/${{ parameters.tenant }}/project-${{ parameters.projectName }}-elasticip-${{ parameters.name }}.yaml`
+
+          ## After merge
+          Argo CD will sync and apply the resource.
+        sourcePath: ./
+        targetPath: .
 
   output:
     links:

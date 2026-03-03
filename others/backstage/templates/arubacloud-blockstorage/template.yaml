@@ -18,7 +18,6 @@ spec:
         - sizeGb
         - billingPeriod
         - dataCenter
-        - bootable
         - image
         - projectName
         - githubToken
@@ -61,8 +60,9 @@ spec:
           default: ITBG-1
         bootable:
           title: Bootable
-          description: Whether the volume is bootable
+          description: Whether the volume is bootable (if not set, the CR will have bootable: false)
           type: boolean
+          default: false
         image:
           title: Image
           description: Image reference for bootable volumes
@@ -102,7 +102,7 @@ spec:
       action: fetch:template
       input:
         url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton-blockstorage
-        targetPath: content/argocd/applications/${{ parameters.tenant }}
+        targetPath: ./argocd/applications/${{ parameters.tenant }}
         token: ${{ parameters.githubToken }}
         templateFileExtension: true
         values:
@@ -128,11 +128,16 @@ spec:
         token: ${{ parameters.githubToken }}
         title: Add ArubaCloud BlockStorage CR - ${{ parameters.name }}
         description: |
-          Adds BlockStorage Custom Resource (arubacloud.com/v1alpha1) for **${{ parameters.name }}**.
-          After merging, Argo CD will sync and apply the resource.
-        sourcePath: content
-        targetPath: argocd/applications/arubacloud-blockstorages/
-        targetBranchName: main
+          ## Summary
+          Adds BlockStorage CR (arubacloud.com/v1alpha1) **${{ parameters.name }}** for project **${{ parameters.projectName }}** in tenant **${{ parameters.tenant }}**.
+
+          ## Files added
+          - `argocd/applications/${{ parameters.tenant }}/project-${{ parameters.projectName }}-blockstorage-${{ parameters.name }}.yaml`
+
+          ## After merge
+          Argo CD will sync and apply the resource.
+        sourcePath: ./
+        targetPath: .
 
   output:
     links:
