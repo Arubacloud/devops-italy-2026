@@ -1,0 +1,4 @@
+# Backstage marker file - creates argocd/applications/{tenant} directory
+# This file is copied by scaffolder template to ensure directory existence
+# Idempotent content: safe to overwrite
+TENANT_DIR_MARKER_PLACEHOLDER
