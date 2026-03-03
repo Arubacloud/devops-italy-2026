@@ -47,16 +47,16 @@ spec:
           description: Personal access token (repo scope) to create the PR. Not stored by Backstage.
           type: string
           ui:widget: password
-
   steps:
+    # 1. Fetch skeleton Project CR
+
     - id: fetch-skeleton
       name: Fetch Project CR skeleton
       action: fetch:template
       input:
         url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton-project
-        targetPath: content
+        targetPath: ./
         token: ${{ parameters.githubToken }}
-        templateFileExtension: true
         values:
           name: ${{ parameters.name }}
           namespace: ${{ parameters.tenant }}
@@ -65,23 +65,22 @@ spec:
           tags: ${{ parameters.tags }}
           default: ${{ parameters.default }}
 
-    - id: ensure-tenant-app-dir
-      name: Ensure tenant ArgoCD app directory and tenant Application
-      action: roadiehq:utils:fs:write
-      input:
-        path: content/argocd/applications/${{ parameters.tenant }}
-        content: |
-          # This directory will hold all ArgoCD Applications for tenant ${{ parameters.tenant }}
-          # The Application "${{ parameters.tenant }}.yaml" in argocd/tenants/ will watch this folder.
 
-    - id: ensure-tenant-app-of-apps
-      name: Create tenant ArgoCD Application (App of Apps)
-      action: roadiehq:utils:fs:write
+    # 2. Make sure tenant app dir exists
+    - id: fetch-tenant-dir
+      name: Ensure tenant app dir marker (idempotent)
+      action: fetch:plain:http
       input:
-        path: content/argocd/tenants/${{ parameters.tenant }}.yaml
-        content: |
-          # ArgoCD Application (App of Apps) for tenant ${{ parameters.tenant }}
-          # Watches argocd/applications/${{ parameters.tenant }} and syncs all YAML files found there
+        url: data:text/plain;base64,LS0tDQojaX0JBY2tzdGFnZV9kaXJfbWFya2VyX2Zvcl9hcmdvY2QgdGVuYW50ICR7eyBwYXJhbWV0ZXJzLnRlbmFudCB9fX0K  # Marker unico
+        targetPath: ./argocd/applications/${{ parameters.tenant }}/marker.txt  # File marker (non README per idempotenza)
+
+    # 3. Apply App of Apps Pattern
+    - id: fetch-app-of-apps
+      name: Ensure tenant App of Apps (idempotent)
+      action: fetch:plain:http
+      input:
+        targetPath: ./argocd/tenants/${{ parameters.tenant }}.yaml
+        content: |  # Template Nunjucks
           apiVersion: argoproj.io/v1alpha1
           kind: Application
           metadata:
@@ -89,26 +88,21 @@ spec:
             namespace: argocd
           spec:
             project: default
-
             source:
               repoURL: https://github.com/Arubacloud/devops-italy-2026.git
               targetRevision: HEAD
               path: argocd/applications/${{ parameters.tenant }}
-
-              # Directory mode: recursive scan of all YAML files under the path
               directory:
-                recurse: true   # Scan subdirectories for application definitions
-
+                recurse: true
             destination:
               server: https://kubernetes.default.svc
               namespace: argocd
-
             syncPolicy:
               automated:
-                prune: true     # Remove applications when file is deleted from Git
-                selfHeal: true  # Automatically sync when files change in Git
+                prune: true
+                selfHeal: true
               syncOptions:
-                - CreateNamespace=true   # Create tenant namespaces when they appear in manifests
+                - CreateNamespace=true
               retry:
                 limit: 5
                 backoff:
@@ -116,13 +110,14 @@ spec:
                   factor: 2
                   maxDuration: 3m
 
-    - id: rename-output
-      name: Move project CR into tenant folder
+    # 4. Move project CR to tenant dir
+    - id: prepare-project
+      name: Move project CR to tenant dir
       action: fs:rename
       input:
         files:
-          - from: content/project.yaml
-            to: content/argocd/applications/${{ parameters.tenant }}/project-${{ parameters.name }}.yaml
+          - from: ./project.yaml
+            to: ./argocd/applications/${{ parameters.tenant }}/project-${{ parameters.name }}.yaml
 
     - id: create-pr
       name: Open PR to GitOps repo
@@ -135,12 +130,13 @@ spec:
         description: |
           Adds Project Custom Resource (arubacloud.com/v1alpha1) for **${{ parameters.name }}**.
           After merging, Argo CD will sync and apply the resource.
-        sourcePath: content
+        sourcePath: ./
         targetPath: .
         targetBranchName: main
+
 
   output:
     links:
       - title: Open pull request
-        url: ${{ steps.create-pr.output.remoteUrl }}/pull/${{ steps.create-pr.output.pullRequestNumber }}
+        url: ${{ steps['create-pr'].output.remoteUrl }}/pull/${{ steps['create-pr'].output.pullRequestNumber }}
         icon: pull-request
