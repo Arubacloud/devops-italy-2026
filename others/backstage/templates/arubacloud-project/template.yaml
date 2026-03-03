@@ -47,9 +47,9 @@ spec:
           description: Personal access token (repo scope) to create the PR. Not stored by Backstage.
           type: string
           ui:widget: password
+
   steps:
     # 1. Fetch skeleton Project CR
-
     - id: fetch-skeleton
       name: Fetch Project CR skeleton
       action: fetch:template
@@ -65,9 +65,7 @@ spec:
           tags: ${{ parameters.tags }}
           default: ${{ parameters.default }}
 
-
-    # 2. Make sure tenant app dir exists
-
+    # 2. Ensure tenant app dir exists (marker)
     - id: fetch-tenant-dir
       name: Ensure tenant app dir marker (idempotent)
       action: fetch:plain
@@ -81,7 +79,7 @@ spec:
       action: fetch:plain
       input:
         targetPath: ./argocd/tenants/${{ parameters.tenant }}.yaml
-        content: |  # Template Nunjucks
+        content: |
           apiVersion: argoproj.io/v1alpha1
           kind: Application
           metadata:
@@ -120,6 +118,7 @@ spec:
           - from: ./project.yaml
             to: ./argocd/applications/${{ parameters.tenant }}/project-${{ parameters.name }}.yaml
 
+    # 5. Create PR
     - id: create-pr
       name: Open PR to GitOps repo
       action: publish:github:pull-request
@@ -134,7 +133,6 @@ spec:
         sourcePath: ./
         targetPath: .
         targetBranchName: main
-
 
   output:
     links:
