@@ -2,7 +2,7 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: arubacloud-create-tenant
-  title: Create ArubaCloud tenant (first time only)
+  title: Create Tenant
   description: Creates the tenant folder with namespace and Argo CD Application. Run once per tenant before adding projects.
 spec:
   owner: platform-team
@@ -35,6 +35,14 @@ spec:
         templateFileExtension: true
         values:
           tenant: ${{ parameters.tenant }}
+
+    - id: rename-tenant-app
+      name: Rename to tenant name
+      action: fs:rename
+      input:
+        files:
+          - from: ./argocd/tenants/tenant.yaml
+            to: ./argocd/tenants/${{ parameters.tenant }}.yaml
 
     - id: fetch-namespace
       name: Generate tenant namespace

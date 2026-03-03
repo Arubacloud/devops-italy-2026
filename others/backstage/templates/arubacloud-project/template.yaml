@@ -73,8 +73,17 @@ spec:
         url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/argo-app-template
         targetPath: ./argocd/tenants
         token: ${{ parameters.githubToken }}
+        templateFileExtension: true
         values:
           tenant: ${{ parameters.tenant }}
+
+    - id: rename-tenant-app
+      name: Rename tenant app to tenant name
+      action: fs:rename
+      input:
+        files:
+          - from: ./argocd/tenants/tenant.yaml
+            to: ./argocd/tenants/${{ parameters.tenant }}.yaml
 
     # 3. Pubblica la PR
     - id: create-pr
