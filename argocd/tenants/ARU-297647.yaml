@@ -1,8 +1,10 @@
+# Tenant Application: syncs argocd/applications/ARU-297647/ into tenant namespace ARU-297647.
+# Created by bootstrap-tenants from argocd/tenants/. Applications live in argocd namespace.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: tenant-ARU-297647
-  namespace: ARU-297647
+  namespace: argocd
 spec:
   project: default
   source:
@@ -13,7 +15,7 @@ spec:
       recurse: true
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: ARU-297647
   syncPolicy:
     automated:
       prune: true

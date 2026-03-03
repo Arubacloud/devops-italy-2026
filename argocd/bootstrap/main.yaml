@@ -1,40 +1,36 @@
-# Bootstrap Application (App of Apps)
-# This application watches argocd/applications/ folder and automatically creates
-# an ArgoCD Application for every YAML file found in that directory
+# Bootstrap Application (App of Apps) – top-level applications only
+# Watches argocd/applications/ (no recurse) and creates one Argo CD Application
+# per YAML file directly in that directory (backstage, vault, etc.).
 #
-# How it works:
-# 1. Watches argocd/applications/ in your Git repository
-# 2. For each YAML file, creates an ArgoCD Application resource
-# 3. Those applications then sync their own content from Git
+# Tenant-specific apps (argocd/applications/${tenant}/*) are managed by
+# bootstrap-tenants → argocd/tenants/${tenant}.yaml, not by this bootstrap.
 #
+# Sync wave 1 so bootstrap-tenants (wave 0) reconciles tenants first.
 # Applied by Terraform during cluster bootstrap
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: bootstrap-apps
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
-  
   source:
     repoURL: https://github.com/Arubacloud/devops-italy-2026.git
     targetRevision: HEAD
     path: argocd/applications
-    
-    # Directory mode automatically discovers all YAML files in the path
     directory:
-      recurse: true  # Scan subdirectories for application definitions
-      
+      recurse: false
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
-    
   syncPolicy:
     automated:
-      prune: true      # Remove applications when file is deleted from Git
-      selfHeal: true   # Automatically sync when files change in Git
+      prune: true
+      selfHeal: true
     syncOptions:
-      - CreateNamespace=true   # Create tenant namespaces (e.g. ARU-297647) when they appear in manifests
+      - CreateNamespace=true
     retry:
       limit: 5
       backoff:

@@ -1,0 +1,37 @@
+# Bootstrap Tenants (App of Apps for tenants)
+# Watches argocd/tenants/ and creates one Argo CD Application per tenant file.
+# Each tenant Application then syncs argocd/applications/${tenant}/ into the tenant namespace.
+#
+# Sync wave 0 so tenants are reconciled before bootstrap-apps (wave 1).
+# Applied by Terraform during cluster bootstrap (together with main.yaml).
+#
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bootstrap-tenants
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Arubacloud/devops-italy-2026.git
+    targetRevision: HEAD
+    path: argocd/tenants
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

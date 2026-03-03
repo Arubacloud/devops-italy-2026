@@ -7,7 +7,8 @@ SCRIPT_DIR=$2
 echo "Configuring repository access..."
 kubectl --kubeconfig="$KUBECONFIG_PATH" -n argocd patch configmap argocd-cm --type merge -p '{"data":{"repositories":"- url: https://github.com/Arubacloud/devops-italy-2026.git\n  type: git\n  name: devops-italy-2026"}}'
 
-echo "Applying ArgoCD bootstrap application (App of Apps)..."
+echo "Applying ArgoCD bootstrap applications (tenants first, then apps)..."
+kubectl --kubeconfig="$KUBECONFIG_PATH" apply -f "$SCRIPT_DIR/../../argocd/bootstrap/tenants.yaml"
 kubectl --kubeconfig="$KUBECONFIG_PATH" apply -f "$SCRIPT_DIR/../../argocd/bootstrap/main.yaml"
 
 echo "ArgoCD bootstrap complete"
