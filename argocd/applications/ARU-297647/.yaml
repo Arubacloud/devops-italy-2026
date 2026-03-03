@@ -1,0 +1,10 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: Project
+metadata:
+  name: test-mio-progetto
+  namespace: ARU-297647
+spec:
+  tenant: ARU-297647
+  description: test-mio-progetto
+  tags: []
+  default: false
