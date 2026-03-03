@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: arubacloud-project
   title: Create ArubaCloud Project
-  description: Creates a Project CR (arubacloud.com/v1alpha1) and opens a PR to the GitOps repo. After merge, Argo CD applies it.
+  description: Crea un Progetto ArubaCloud. Se è il primo progetto del tenant, crea anche l'Application Argo CD.
 spec:
   owner: platform-team
   type: service
@@ -11,132 +11,57 @@ spec:
 
   parameters:
     - title: Project details
-      required:
-        - name
-        - tenant
-        - githubToken
+      required: [name, tenant, githubToken]
       properties:
         name:
           title: Name
-          description: Project name (metadata.name)
           type: string
-          ui:autofocus: true
         tenant:
-          title: Tenant
-          description: Tenant identifier for the project
+          title: Tenant ID
           type: string
-        description:
-          title: Description
-          description: Optional project description
-          type: string
-          default: ""
-        tags:
-          title: Tags
-          description: Optional list of tags
-          type: array
-          items:
-            type: string
-          default: []
-        default:
-          title: Default project
-          description: Whether this is the default project
-          type: boolean
-          default: false
+          description: "Esempio: ARU-297647"
         githubToken:
           title: GitHub token
-          description: Personal access token (repo scope) to create the PR. Not stored by Backstage.
           type: string
           ui:widget: password
 
   steps:
-    # 1. Fetch skeleton Project CR
-    - id: fetch-skeleton
-      name: Fetch Project CR skeleton
+    # 1. Genera il file del Progetto (unico per ogni esecuzione)
+    - id: fetch-project-cr
+      name: Generate Project CR
       action: fetch:template
       input:
         url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton-project
-        targetPath: ./
+        targetPath: ./argocd/applications/${{ parameters.tenant }}
         token: ${{ parameters.githubToken }}
         values:
           name: ${{ parameters.name }}
-          namespace: ${{ parameters.tenant }}
           tenant: ${{ parameters.tenant }}
-          description: ${{ parameters.description }}
-          tags: ${{ parameters.tags }}
-          default: ${{ parameters.default }}
 
-    # 2. Fix: Creazione marker inline per evitare errore FetchUrlReader
-    - id: create-tenant-marker
-      name: Ensure tenant app dir (marker)
-      action: fetch:plain
+    # 2. Genera l'App-of-Apps del Tenant (Idempotente)
+    # Se il file esiste già nel repo principale, la PR di Backstage caricherà la stessa versione.
+    # Se non esiste, verrà aggiunto.
+    - id: fetch-argo-app
+      name: Ensure Tenant Application exists
+      action: fetch:template
       input:
-        targetPath: ./argocd/applications/${{ parameters.tenant }}/.gitkeep
-        content: |
-          Managed by Backstage IDP - Tenant: ${{ parameters.tenant }}
+        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/templates/argo-app-template
+        targetPath: ./argocd/tenants
+        token: ${{ parameters.githubToken }}
+        values:
+          tenant: ${{ parameters.tenant }}
 
-    # 3. Apply App of Apps Pattern
-    - id: fetch-app-of-apps
-      name: Ensure tenant App of Apps (idempotent)
-      action: fetch:plain
-      input:
-        targetPath: ./argocd/tenants/${{ parameters.tenant }}.yaml
-        content: |
-          apiVersion: argoproj.io/v1alpha1
-          kind: Application
-          metadata:
-            name: ${{ parameters.tenant }}
-            namespace: argocd
-          spec:
-            project: default
-            source:
-              repoURL: https://github.com/Arubacloud/devops-italy-2026.git
-              targetRevision: HEAD
-              path: argocd/applications/${{ parameters.tenant }}
-              directory:
-                recurse: true
-            destination:
-              server: https://kubernetes.default.svc
-              namespace: argocd
-            syncPolicy:
-              automated:
-                prune: true
-                selfHeal: true
-              syncOptions:
-                - CreateNamespace=true
-              retry:
-                limit: 5
-                backoff:
-                  duration: 5s
-                  factor: 2
-                  maxDuration: 3m
-
-    # 4. Move project CR to tenant dir
-    - id: prepare-project
-      name: Move project CR to tenant dir
-      action: fs:rename
-      input:
-        files:
-          - from: ./project.yaml
-            to: ./argocd/applications/${{ parameters.tenant }}/project-${{ parameters.name }}.yaml
-
-    # 5. Create PR
+    # 3. Pubblica la PR
     - id: create-pr
-      name: Open PR to GitOps repo
+      name: Open PR
       action: publish:github:pull-request
       input:
         repoUrl: github.com?owner=Arubacloud&repo=devops-italy-2026
-        branchName: backstage/${{ parameters.tenant }}-project-${{ parameters.name }}
+        branchName: project-${{ parameters.tenant }}-${{ parameters.name }}
         token: ${{ parameters.githubToken }}
-        title: "Add ArubaCloud Project CR - ${{ parameters.name }} (Tenant: ${{ parameters.tenant }})"
+        title: "feat: add project ${{ parameters.name }} to tenant ${{ parameters.tenant }}"
         description: |
-          Adds Project Custom Resource (arubacloud.com/v1alpha1) for **${{ parameters.name }}**.
-          After merging, Argo CD will sync and apply the resource.
+          Aggiunta del progetto ArubaCloud. 
+          Se questo è il primo progetto del tenant, è stata generata anche l'Application Argo CD in argocd/tenants/${{ parameters.tenant }}.yaml.
         sourcePath: ./
         targetPath: .
-        targetBranchName: main
-
-  output:
-    links:
-      - title: Open pull request
-        url: ${{ steps['create-pr'].output.remoteUrl }}
-        icon: pull-request
