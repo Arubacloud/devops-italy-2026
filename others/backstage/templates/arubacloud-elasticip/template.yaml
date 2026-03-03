@@ -78,25 +78,6 @@ spec:
           projectName: ${{ parameters.projectName }}
           projectNamespace: tenant-${{ parameters.tenant }}
 
-    - id: fetch-argo-app
-      name: Ensure Tenant Application exists
-      action: fetch:template
-      input:
-        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/argo-app-template
-        targetPath: content/argocd/tenants
-        token: ${{ parameters.githubToken }}
-        templateFileExtension: true
-        values:
-          tenant: ${{ parameters.tenant }}
-
-    - id: rename-tenant-app
-      name: Rename tenant app to tenant name
-      action: fs:rename
-      input:
-        files:
-          - from: content/argocd/tenants/tenant.yaml
-            to: content/argocd/tenants/${{ parameters.tenant }}.yaml
-
     - id: create-pr
       name: Open PR to GitOps repo
       action: publish:github:pull-request

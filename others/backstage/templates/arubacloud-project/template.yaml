@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: arubacloud-project
   title: Create ArubaCloud Project
-  description: Crea un Progetto ArubaCloud. Se è il primo progetto del tenant, crea anche l'Application Argo CD.
+  description: Crea un Progetto ArubaCloud nel tenant esistente. Il tenant va creato prima con il template "Create Tenant" (idp-tenant).
 spec:
   owner: platform-team
   type: service
@@ -63,29 +63,7 @@ spec:
           default: ${{ parameters.default }}
 
 
-    # 2. Genera l'App-of-Apps del Tenant (Idempotente)
-    # Se il file esiste già nel repo principale, la PR di Backstage caricherà la stessa versione.
-    # Se non esiste, verrà aggiunto.
-    - id: fetch-argo-app
-      name: Ensure Tenant Application exists
-      action: fetch:template
-      input:
-        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/argo-app-template
-        targetPath: ./argocd/tenants
-        token: ${{ parameters.githubToken }}
-        templateFileExtension: true
-        values:
-          tenant: ${{ parameters.tenant }}
-
-    - id: rename-tenant-app
-      name: Rename tenant app to tenant name
-      action: fs:rename
-      input:
-        files:
-          - from: ./argocd/tenants/tenant.yaml
-            to: ./argocd/tenants/${{ parameters.tenant }}.yaml
-
-    # 3. Pubblica la PR
+    # 2. Pubblica la PR
     - id: create-pr
       name: Open PR
       action: publish:github:pull-request
@@ -95,7 +73,7 @@ spec:
         token: ${{ parameters.githubToken }}
         title: "feat: add project ${{ parameters.name }} to tenant ${{ parameters.tenant }}"
         description: |
-          Aggiunta del progetto ArubaCloud. 
-          Se questo è il primo progetto del tenant, è stata generata anche l'Application Argo CD in argocd/tenants/${{ parameters.tenant }}.yaml.
+          Aggiunta del progetto ArubaCloud al tenant ${{ parameters.tenant }}.
+          Il tenant deve essere già stato creato con il template "Create Tenant" (idp-tenant).
         sourcePath: ./
         targetPath: .
