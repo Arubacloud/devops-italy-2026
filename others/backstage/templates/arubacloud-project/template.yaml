@@ -69,7 +69,7 @@ spec:
     # 2. Make sure tenant app dir exists
     - id: fetch-tenant-dir
       name: Ensure tenant app dir marker (idempotent)
-      action: fetch:plain:http
+      action: fetch:plain
       input:
         url: data:text/plain;base64,LS0tDQojaX0JBY2tzdGFnZV9kaXJfbWFya2VyX2Zvcl9hcmdvY2QgdGVuYW50ICR7eyBwYXJhbWV0ZXJzLnRlbmFudCB9fX0K  # Marker unico
         targetPath: ./argocd/applications/${{ parameters.tenant }}/marker.txt  # File marker (non README per idempotenza)
@@ -77,7 +77,7 @@ spec:
     # 3. Apply App of Apps Pattern
     - id: fetch-app-of-apps
       name: Ensure tenant App of Apps (idempotent)
-      action: fetch:plain:http
+      action: fetch:plain
       input:
         targetPath: ./argocd/tenants/${{ parameters.tenant }}.yaml
         content: |  # Template Nunjucks
