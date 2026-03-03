@@ -34,7 +34,7 @@ spec:
       prune: true      # Remove applications when file is deleted from Git
       selfHeal: true   # Automatically sync when files change in Git
     syncOptions:
-      - CreateNamespace=false  # argocd namespace already exists
+      - CreateNamespace=true   # Create tenant namespaces (e.g. ARU-297647) when they appear in manifests
     retry:
       limit: 5
       backoff:
