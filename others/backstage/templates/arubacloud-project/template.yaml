@@ -65,27 +65,78 @@ spec:
           tags: ${{ parameters.tags }}
           default: ${{ parameters.default }}
 
+    - id: ensure-tenant-app-dir
+      name: Ensure tenant ArgoCD app directory and tenant Application
+      action: roadiehq:utils:fs:write
+      input:
+        path: content/argocd/applications/${{ parameters.tenant }}
+        content: |
+          # This directory will hold all ArgoCD Applications for tenant ${{ parameters.tenant }}
+          # The Application "${{ parameters.tenant }}.yaml" in argocd/tenants/ will watch this folder.
+
+    - id: ensure-tenant-app-of-apps
+      name: Create tenant ArgoCD Application (App of Apps)
+      action: roadiehq:utils:fs:write
+      input:
+        path: content/argocd/tenants/${{ parameters.tenant }}.yaml
+        content: |
+          # ArgoCD Application (App of Apps) for tenant ${{ parameters.tenant }}
+          # Watches argocd/applications/${{ parameters.tenant }} and syncs all YAML files found there
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: ${{ parameters.tenant }}
+            namespace: argocd
+          spec:
+            project: default
+
+            source:
+              repoURL: https://github.com/Arubacloud/devops-italy-2026.git
+              targetRevision: HEAD
+              path: argocd/applications/${{ parameters.tenant }}
+
+              # Directory mode: recursive scan of all YAML files under the path
+              directory:
+                recurse: true   # Scan subdirectories for application definitions
+
+            destination:
+              server: https://kubernetes.default.svc
+              namespace: argocd
+
+            syncPolicy:
+              automated:
+                prune: true     # Remove applications when file is deleted from Git
+                selfHeal: true  # Automatically sync when files change in Git
+              syncOptions:
+                - CreateNamespace=true   # Create tenant namespaces when they appear in manifests
+              retry:
+                limit: 5
+                backoff:
+                  duration: 5s
+                  factor: 2
+                  maxDuration: 3m
+
     - id: rename-output
-      name: Rename to tenant-project-name.yaml
+      name: Move project CR into tenant folder
       action: fs:rename
       input:
         files:
           - from: content/project.yaml
-            to: content/${{ parameters.tenant }}-project-${{ parameters.name }}.yaml
+            to: content/argocd/applications/${{ parameters.tenant }}/project-${{ parameters.name }}.yaml
 
     - id: create-pr
       name: Open PR to GitOps repo
       action: publish:github:pull-request
       input:
         repoUrl: github.com?owner=Arubacloud&repo=devops-italy-2026
-        branchName: backstage/project-${{ parameters.tenant }}-project-${{ parameters.name }}
+        branchName: backstage/${{ parameters.tenant }}-project-${{ parameters.name }}
         token: ${{ parameters.githubToken }}
-        title: Add ArubaCloud Project CR - ${{ parameters.name }}
+        title: Add ArubaCloud Project CR - ${{ parameters.name }} - tenant ${{ parameters.tenant }}
         description: |
           Adds Project Custom Resource (arubacloud.com/v1alpha1) for **${{ parameters.name }}**.
           After merging, Argo CD will sync and apply the resource.
         sourcePath: content
-        targetPath: argocd/applications/arubacloud-projects/
+        targetPath: .
         targetBranchName: main
 
   output:
