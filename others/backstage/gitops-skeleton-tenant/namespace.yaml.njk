@@ -1,0 +1,9 @@
+# Tenant namespace. Created once when the tenant folder is created (Create tenant template).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${{ values.tenant }}
+  labels:
+    app.kubernetes.io/managed-by: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"

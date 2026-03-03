@@ -109,6 +109,8 @@ spec:
               locations:
                 # ArubaCloud templates (raw URL so Backstage can load the template YAML)
                 - type: url
+                  target: https://raw.githubusercontent.com/Arubacloud/devops-italy-2026/main/others/backstage/templates/arubacloud-create-tenant/template.yaml
+                - type: url
                   target: https://raw.githubusercontent.com/Arubacloud/devops-italy-2026/main/others/backstage/templates/arubacloud-project/template.yaml
                 - type: url
                   target: https://raw.githubusercontent.com/Arubacloud/devops-italy-2026/main/others/backstage/templates/arubacloud-blockstorage/template.yaml

@@ -1,0 +1,70 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: arubacloud-create-tenant
+  title: Create ArubaCloud tenant (first time only)
+  description: Creates the tenant folder with namespace and Argo CD Application. Run once per tenant before adding projects.
+spec:
+  owner: platform-team
+  type: service
+  lifecycle: experimental
+
+  parameters:
+    - title: Tenant details
+      required: [tenant, githubToken]
+      properties:
+        tenant:
+          title: Tenant
+          description: Tenant identifier (e.g. ARU-297647). Creates argocd/tenants/{tenant}.yaml and argocd/applications/{tenant}/namespace.yaml
+          type: string
+          ui:autofocus: true
+        githubToken:
+          title: GitHub token
+          description: Personal access token (repo scope) to create the PR. Not stored by Backstage.
+          type: string
+          ui:widget: password
+
+  steps:
+    - id: fetch-tenant-app
+      name: Generate tenant Application
+      action: fetch:template
+      input:
+        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/argo-app-template
+        targetPath: ./argocd/tenants
+        token: ${{ parameters.githubToken }}
+        templateFileExtension: true
+        values:
+          tenant: ${{ parameters.tenant }}
+
+    - id: fetch-namespace
+      name: Generate tenant namespace
+      action: fetch:template
+      input:
+        url: https://github.com/Arubacloud/devops-italy-2026/tree/main/others/backstage/gitops-skeleton-tenant
+        targetPath: ./argocd/applications/${{ parameters.tenant }}
+        token: ${{ parameters.githubToken }}
+        templateFileExtension: true
+        values:
+          tenant: ${{ parameters.tenant }}
+
+    - id: create-pr
+      name: Open PR
+      action: publish:github:pull-request
+      input:
+        repoUrl: github.com?owner=Arubacloud&repo=devops-italy-2026
+        branchName: tenant-${{ parameters.tenant }}
+        token: ${{ parameters.githubToken }}
+        title: "feat: add tenant ${{ parameters.tenant }} (namespace + Argo CD Application)"
+        description: |
+          Creates the tenant folder for **${{ parameters.tenant }}**:
+          - argocd/tenants/${{ parameters.tenant }}.yaml (Argo CD Application for this tenant)
+          - argocd/applications/${{ parameters.tenant }}/namespace.yaml (tenant namespace)
+          After merge, add projects via "Create ArubaCloud Project".
+        sourcePath: .
+        targetPath: .
+
+  output:
+    links:
+      - title: Open pull request
+        url: ${{ steps.create-pr.output.remoteUrl }}/pull/${{ steps.create-pr.output.pullRequestNumber }}
+        icon: pull-request
