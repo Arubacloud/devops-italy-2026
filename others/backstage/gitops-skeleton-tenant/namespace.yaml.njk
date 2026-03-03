@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ${{ values.tenant }}
+  name: tenant-${{ values.tenant }}
   labels:
     app.kubernetes.io/managed-by: argocd
   annotations:

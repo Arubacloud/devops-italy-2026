@@ -13,7 +13,7 @@ spec:
       recurse: true
   destination:
     server: https://kubernetes.default.svc
-    namespace: ${{ values.tenant }}
+    namespace: tenant-${{ values.tenant }}
   syncPolicy:
     automated:
       prune: true

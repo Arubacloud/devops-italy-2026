@@ -56,7 +56,7 @@ spec:
         templateFileExtension: true        
         values:
           name: ${{ parameters.name }}
-          namespace: ${{ parameters.tenant }}
+          namespace: tenant-${{ parameters.tenant }}
           tenant: ${{ parameters.tenant }}
           description: ${{ parameters.description }}
           tags: ${{ parameters.tags }}

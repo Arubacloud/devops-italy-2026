@@ -70,13 +70,13 @@ spec:
         templateFileExtension: true
         values:
           name: ${{ parameters.name }}
-          namespace: ${{ parameters.tenant }}
+          namespace: tenant-${{ parameters.tenant }}
           tenant: ${{ parameters.tenant }}
           tags: ${{ parameters.tags }}
           location: ${{ parameters.location }}
           billingPeriod: ${{ parameters.billingPeriod }}
           projectName: ${{ parameters.projectName }}
-          projectNamespace: ${{ parameters.tenant }}
+          projectNamespace: tenant-${{ parameters.tenant }}
 
     - id: fetch-argo-app
       name: Ensure Tenant Application exists
