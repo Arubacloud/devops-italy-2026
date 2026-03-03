@@ -1,0 +1,10 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: Project
+metadata:
+  name: {{ values.name }}
+  namespace: {{ values.namespace }}
+spec:
+  tenant: {{ values.tenant }}
+  description: {{ values.description }}
+  tags: []
+  default: {{ values.default }}
