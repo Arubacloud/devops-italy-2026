@@ -13,5 +13,5 @@ spec:
   dataCenter: ITBG-1
   bootable: false
   projectReference:
-    name: test-mio-progetto
+    name: test-progetto-mio
     namespace: tenant-aru-297647
