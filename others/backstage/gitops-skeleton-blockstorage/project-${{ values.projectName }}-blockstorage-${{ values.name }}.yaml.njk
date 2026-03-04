@@ -20,10 +20,10 @@ spec:
   dataCenter: ${{ values.dataCenter }}
 {%- if values.bootable %}
   bootable: true
+  image: ${{ values.image }}
 {%- else %}
   bootable: false
 {%- endif %}
-  image: ${{ values.image }}
   projectReference:
     name: ${{ values.projectName }}
     namespace: tenant-${{ values.tenant | lower }}
