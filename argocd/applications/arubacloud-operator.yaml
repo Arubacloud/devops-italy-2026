@@ -20,10 +20,13 @@ spec:
     helm:
       values: |
         controller:
+          replicas: 0
           manager:
             image:
               repository: ghcr.io/arubacloud/arubacloud-resource-operator
               tag: v0.0.4
+
+
         config:
           auth:
             mode: multi
