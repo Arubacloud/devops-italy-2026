@@ -1,0 +1,10 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: Project
+metadata:
+  name: test-idp-progetto
+  namespace: tenant-aru-297647
+spec:
+  tenant: ARU-297647
+  description: test-idp-progett
+  tags: []
+  default: false
