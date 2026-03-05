@@ -20,7 +20,7 @@ spec:
     helm:
       values: |
         controller:
-          replicas: 0
+          replicas: 1
           manager:
             image:
               repository: ghcr.io/arubacloud/arubacloud-resource-operator
