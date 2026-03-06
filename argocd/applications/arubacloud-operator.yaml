@@ -24,7 +24,7 @@ spec:
           manager:
             image:
               repository: ghcr.io/arubacloud/arubacloud-resource-operator
-              tag: v0.0.5
+              tag: v0.0.6
 
 
         config:
