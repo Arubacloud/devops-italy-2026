@@ -1,0 +1,15 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: ElasticIp
+metadata:
+  name: test-block
+  namespace: tenant-aru-297647
+spec:
+  tenant: ARU-297647
+  tags: []
+  location:
+    value: ITBG-Bergamo
+  billingPlan:
+    billingPeriod: Hour
+  projectReference:
+    name: nuovo-proj
+    namespace: tenant-aru-297647
