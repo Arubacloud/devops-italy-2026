@@ -1,0 +1,10 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: Project
+metadata:
+  name: test-devops-proj
+  namespace: tenant-aru-297647
+spec:
+  tenant: ARU-297647
+  description: test-devops-proj
+  tags: []
+  default: false
