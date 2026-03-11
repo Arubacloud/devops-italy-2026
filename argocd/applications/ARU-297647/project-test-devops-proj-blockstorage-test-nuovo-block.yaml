@@ -1,0 +1,17 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: BlockStorage
+metadata:
+  name: test-nuovo-block
+  namespace: tenant-aru-297647
+spec:
+  tenant: ARU-297647
+  tags: []
+  location:
+    value: ITBG-Bergamo
+  sizeGb: 20
+  billingPeriod: Hour
+  dataCenter: ITBG-1
+  bootable: false
+  projectReference:
+    name: test-devops-proj
+    namespace: tenant-aru-297647
