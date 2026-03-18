@@ -30,8 +30,8 @@ spec:
           auth:
             mode: single
             single:
-              clientId: ""
-              clientSecret: ""
+              clientId: "<your-client-id>"
+              clientSecret: "<your-client-secret>"
 
             multi:
               vault:
@@ -50,6 +50,14 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: aruba-system
+
+  ignoreDifferences:
+    - group: ""
+      kind: ConfigMap
+      name: operator-config
+      namespace: aruba-system
+      jsonPointers:
+        - /data
     
   syncPolicy:
     automated:
