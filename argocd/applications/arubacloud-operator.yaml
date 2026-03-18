@@ -29,7 +29,7 @@ spec:
 
         config:
           auth:
-            mode: multi
+            mode: single
             multi:
               vault:
                 address: http://vault.vault.svc:8200
