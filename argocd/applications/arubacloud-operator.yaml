@@ -53,7 +53,7 @@ spec:
 
   ignoreDifferences:
     - group: ""
-      kind: ConfigMap
+      kind: Secret
       name: operator-config
       namespace: aruba-system
       jsonPointers:
