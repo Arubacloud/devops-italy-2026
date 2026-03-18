@@ -26,10 +26,13 @@ spec:
               repository: ghcr.io/arubacloud/arubacloud-resource-operator
               tag: v0.0.7-beta1
 
-
         config:
           auth:
             mode: single
+            single:
+              clientId: ""
+              clientSecret: ""
+
             multi:
               vault:
                 address: http://vault.vault.svc:8200
