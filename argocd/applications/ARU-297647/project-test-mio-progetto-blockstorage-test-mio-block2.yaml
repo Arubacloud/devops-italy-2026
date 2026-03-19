@@ -8,11 +8,11 @@ spec:
   tags: []
   location:
     value: ITBG-Bergamo
-  sizeGb: 20
+  sizeGb: 19
   billingPeriod: Hour
   dataCenter: ITBG-1
   bootable: true
-  image: LU20-001
+  image: LU24-001
   projectReference:
     name: test-mio-progetto
     namespace: tenant-aru-297647
