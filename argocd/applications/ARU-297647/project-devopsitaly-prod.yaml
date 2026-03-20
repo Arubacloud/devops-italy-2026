@@ -1,0 +1,10 @@
+apiVersion: arubacloud.com/v1alpha1
+kind: Project
+metadata:
+  name: devopsitaly-prod
+  namespace: tenant-aru-297647
+spec:
+  tenant: ARU-297647
+  description: mio-prog
+  tags: []
+  default: false
